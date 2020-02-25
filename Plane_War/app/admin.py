@@ -15,6 +15,7 @@ class DeveloperAdmin(admin.ModelAdmin):
     '''开发者管理类'''
     list_display = ['id',
                     'position_calc',
+                    'enermys_create',
                     ]
     actions_on_bottom = True
 

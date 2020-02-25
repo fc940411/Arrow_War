@@ -29,10 +29,10 @@ class Developer(models.Model):
         verbose_name_plural = '开发者'
 
     # 位置计算函数
-    position_calc = models.BooleanField(verbose_name='位置计算函数', default=True)
+    position_calc = models.BooleanField(verbose_name='位置计算状态', default=True)
 
     # 敌机生成函数
-    enermys_create = models.BooleanField(verbose_name='敌机生成函数', default=True)
+    enermys_create = models.BooleanField(verbose_name='敌机生成状态', default=True)
 
     # def __str__(self):
     #     # 返回用户名

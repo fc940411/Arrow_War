@@ -191,7 +191,7 @@ def war_handle(request):
                          'map_top':map_top,
                          'map_left':map_left,
                          'other_planes':other_planes,
-                         'enermy_information':enermy_information,
+                         'enermys':all_enermys,
                         })
 
 # 操作飞机
@@ -239,13 +239,14 @@ def enermys_create(request):
         state = Developer.objects.get(id=1)
         if state.enermys_create == False:
             break
-        time.sleep(5)
-        speed = 10
-        angle = 180
+        time.sleep(30)
+        speed = -1
+        angle = 0
         left = w1/2
         top = 0
         # 创建敌机
-        Enermys.objects.create(plane_speed = speed, plane_angle = angle, plane_ps_left = left, plane_ps_top = top ) 
+        Enermys.objects.create(plane_speed = speed, plane_angle = angle, plane_ps_left = left, plane_ps_top = top)
+        return HttpResponse('生成敌机!') 
 
 # 位置计算函数
 def position_calc(request):
@@ -273,9 +274,8 @@ def position_calc(request):
                 # 2.根据速度和角度,计算飞机位置和地图位置
                 left = left + math.sin(math.pi*(angle)/180)*speed
                 top = top - math.cos(math.pi*(angle)/180)*speed
-                map_left                 # print('前',map_left,map_top)= (w2-w1)/2 - (left-(w1-46)/2)
+                map_left= (w2-w1)/2 - (left-(w1-46)/2)
                 map_top = (w2-w1)/2 - (top-(w1-46)/2)
-                # print('后',map_left,map_top)
                 i.plane_ps_left = left
                 i.plane_ps_top = top
                 i.map_ps_left = map_left
@@ -308,15 +308,18 @@ def position_calc(request):
                 # 2.根据速度和角度,计算飞机位置和地图位置
                 left = left + math.sin(math.pi*(angle)/180)*speed
                 top = top - math.cos(math.pi*(angle)/180)*speed
-
-                i.plane_ps_left = left
-                i.plane_ps_top = top
-                i.save()
-
+                
                 # 3.判断飞机是否坠毁
                 if left >= w1 or top >= w1:
                     i.delete()
                     i.save()   
+
+                # 4.输出敌机位置
+                i.plane_ps_left = left
+                i.plane_ps_top = top
+                i.save()
+
+
     if state.position_calc == True:
         return HttpResponse('开启完成')
     else:

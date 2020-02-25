@@ -39,6 +39,11 @@
 
                 $('.other_planes').remove()
 
+                $('.enemys').remove()
+                $('.enemys').css({
+                    'z-index':24,
+                })
+
                 $('.map').css({
                     'width': data.map+'px',
                     'height': data.map+'px',
@@ -70,15 +75,28 @@
                     }) 
                 }
 
-                console.log(data.other_planes)
+                function create_enemy(num, left, top, angle){
+                    $('.war_map').append("<img src='static/fonts/image/enemy1.png' alt='敌机' class = 'enemys' id="+num+">")
+                    $('#'+num).css({
+                        'position':'relative',
+                        'left':left+'px',
+                        'top':top+'px',
+                        'transform-origin':'50% 43%',
+                        'transform':'rotate('+angle+'deg)',
+                    }) 
+                }
+
                 if(data.other_planes!=''){
                     for(i in data.other_planes){
-                        console.log(i, data.other_planes[i].left, data.other_planes[i].top, data.other_planes[i].angle)
-                        console.log("'#"+i+"'")
                         create_otherplane(i, data.other_planes[i].left, data.other_planes[i].top, data.other_planes[i].angle)
                     }  
                 }
 
+                if(data.enermys!=''){
+                    for(i in data.enermys){
+                        create_enemy(i, data.enermys[i].left, data.enermys[i].top, data.enermys[i].angle)
+                    }  
+                }
 
 
 

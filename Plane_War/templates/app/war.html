@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>战场</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <script type="text/javascript" src="static/js/jQuery-3.4.1.js"></script>
+    <script type="text/javascript" src="static/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="static/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="static/css/war_main.css">
+    
+</head>
+<body class="background">
+    <div class="row map">
+        <div class='war_map'>
+            <img src="static/fonts/image/plane.png" alt="飞机" class="hero">
+        </div>
+        
+    </div>
+
+
+
+    <script type="text/javascript">
+
+        function war_handle(){
+            $.ajax({
+                'url':'/war_handle',
+                'type':'post',
+                'datatype':'json',
+                'data':'',
+            }).done(function(data){
+                plane_left = data.left
+                plane_height = data.top
+                plane_rotate = data.angle
+                plane_life = data.life
+                map_left = data.map_left
+                map_height = data.map_top
+
+                $('.other_planes').remove()
+
+                $('.map').css({
+                    'width': data.map+'px',
+                    'height': data.map+'px',
+                })
+
+                $('.war_map').css({
+                    'width': data.war_map+'px',
+                    'height': data.war_map+'px',
+                    'position':'relative',
+                    'left':map_left+'px',
+                    'top':map_height+'px',
+                })
+                $('.hero').css({
+                    'position':'relative',
+                    'left':plane_left+'px',
+                    'top':plane_height+'px',
+                    'transform-origin':'50% 43%',
+                    'transform':'rotate('+data.angle+'deg)',
+                })
+
+                function create_otherplane(num, left, top, angle){
+                    $('.war_map').append("<img src='static/fonts/image/plane.png' alt='飞机' class = 'other_planes' id="+num+">")
+                    $('#'+num).css({
+                        'position':'relative',
+                        'left':left+'px',
+                        'top':top+'px',
+                        'transform-origin':'50% 43%',
+                        'transform':'rotate('+angle+'deg)',
+                    }) 
+                }
+
+                console.log(data.other_planes)
+                if(data.other_planes!=''){
+                    for(i in data.other_planes){
+                        console.log(i, data.other_planes[i].left, data.other_planes[i].top, data.other_planes[i].angle)
+                        console.log("'#"+i+"'")
+                        create_otherplane(i, data.other_planes[i].left, data.other_planes[i].top, data.other_planes[i].angle)
+                    }  
+                }
+
+
+
+
+                if(plane_life==false){
+                    window.location.href = '/personal'
+                    alert('飞机撞墙坠毁!')
+                }
+            })
+        }
+
+        $(function(){
+            $('.col-xs-2').css({
+                'color':'white',
+            })
+            setInterval(war_handle,50)  
+        })
+
+        window.onunload=function(){
+            $.ajax({
+                'url':'/logout',
+                'type':'post',
+                'datatype':'json',
+                'data':'',
+            })
+        }
+
+
+        function move_ajax(direction){
+            $.ajax({
+                'url':'/plane_handle',
+                'type':'post',
+                'datatype':'json',
+                'data':{'direction':direction},
+            })       
+        }
+
+        $(window).keydown(function (event) {
+            if(String.fromCharCode(event.which)=='A'){
+                direction = 'left'
+                move_ajax('left')
+            }
+
+            if(String.fromCharCode(event.which)=='D'){
+                direction = 'right'
+                move_ajax('right')
+            }
+        })
+    </script>
+</body>
+
+</html>

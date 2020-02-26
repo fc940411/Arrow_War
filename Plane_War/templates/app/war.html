@@ -41,7 +41,6 @@
 
                 $('.enemys').remove()
                 $('.enemys').css({
-                    'z-index':24,
                 })
 
                 $('.map').css({
@@ -78,7 +77,7 @@
                 function create_enemy(num, left, top, angle){
                     $('.war_map').append("<img src='static/fonts/image/enemy1.png' alt='敌机' class = 'enemys' id="+num+">")
                     $('#'+num).css({
-                        'position':'relative',
+                        'position':'absolute',
                         'left':left+'px',
                         'top':top+'px',
                         'transform-origin':'50% 43%',
@@ -95,6 +94,9 @@
                 if(data.enermys!=''){
                     for(i in data.enermys){
                         create_enemy(i, data.enermys[i].left, data.enermys[i].top, data.enermys[i].angle)
+                        $('#'+i).css({
+                            'z-index':24+i,
+                        })
                     }  
                 }
 

@@ -7,6 +7,7 @@ import json
 import math
 import time
 import threading
+import random
 
 
 # Create your views here.
@@ -239,14 +240,34 @@ def enermys_create(request):
         state = Developer.objects.get(id=1)
         if state.enermys_create == False:
             break
-        time.sleep(30)
-        speed = -1
-        angle = 0
-        left = w1/2
-        top = 0
+        time.sleep(5)
+        
+        pos = random.random()
+
+        if pos >= 0 and pos < 0.25:
+            angle = 0
+            speed = -1
+            left = pos/0.25*(w1-100)+50
+            top = 0
+        elif pos >= 0.25 and pos < 0.5:    
+            angle = 90
+            speed = -1
+            left = w1
+            top = (pos-0.25)/0.25*(w1-100)+50
+        elif pos >= 0.5 and pos < 0.75:    
+            angle = 180
+            speed = -1
+            left = (pos-0.5)/0.25*(w1-100)+50
+            top = w1
+        elif pos >= 0.75 and pos <= 1:    
+            angle = 270
+            speed = -1
+            left = 0
+            top = (pos-0.75)/0.25*(w1-100)+50
+        print(pos, angle, left, top)
         # 创建敌机
         Enermys.objects.create(plane_speed = speed, plane_angle = angle, plane_ps_left = left, plane_ps_top = top)
-        return HttpResponse('生成敌机!') 
+    return HttpResponse('生成敌机!') 
 
 # 位置计算函数
 def position_calc(request):
@@ -255,7 +276,7 @@ def position_calc(request):
         state = Developer.objects.get(id=1)
         if state.position_calc == False:
             break
-        time.sleep(0.1)
+        time.sleep(0.02)
         # 获取所有存活英雄飞机
         try:
             planes = Planes.objects.filter(plane_life=True)
@@ -308,16 +329,16 @@ def position_calc(request):
                 # 2.根据速度和角度,计算飞机位置和地图位置
                 left = left + math.sin(math.pi*(angle)/180)*speed
                 top = top - math.cos(math.pi*(angle)/180)*speed
-                
-                # 3.判断飞机是否坠毁
-                if left >= w1 or top >= w1:
-                    i.delete()
-                    i.save()   
-
-                # 4.输出敌机位置
+     
+                # 3.输出敌机位置
                 i.plane_ps_left = left
                 i.plane_ps_top = top
-                i.save()
+                i.save()    
+
+                # 4.判断飞机是否坠毁
+                if left >= w1 or top >= w1 or left < 0 or top < 0:
+                    i.delete()
+
 
 
     if state.position_calc == True:

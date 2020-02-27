@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>测试</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <script type="text/javascript" src="static/js/jQuery-3.4.1.js"></script>
+    <script type="text/javascript" src="static/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="static/css/bootstrap.min.css">
+    <script type="text/javascript">
+        $(function(){
+            var state_position_calc
+            var state_enemy_create
+            $.ajax({
+                'url':'/war_test_handle',
+                'type':'post',
+                'data':'',
+                'datatype':'json',
+            }).done(function(data){
+                console.log(data.position_calc, data.enermys_create)
+                if(data.position_calc==true){
+                    $('#position_calc').css({
+                        'background-color':'green',
+                    })
+                    $('#position_calc').val('开启')
+                    state_position_calc = 1
+                }
+                if(data.position_calc==false){
+                    $('#position_calc').css({
+                        'background-color':'red',
+                    })
+                    $('#position_calc').val('关闭')
+                    state_position_calc = 0
+                }
+                if(data.enermys_create==true){
+                    $('#enemy_create').css({
+                        'background-color':'green',
+                    })
+                    $('#enemy_create').val('开启')
+                    state_enemy_create = 1
+                }
+                if(data.enermys_create==false){
+                    $('#enemy_create').css({
+                        'background-color':'red',
+                    })
+                    $('#enemy_create').val('关闭')
+                    state_enemy_create = 0
+                }
+            })
+
+            $('#position_calc').click(function(){
+                $.ajax({
+                    'url':'/position_calc',
+                    'type':'post',
+                    'data':{'state_position_calc':state_position_calc},
+                    'datatype':'json'
+                }).done(function(data){})
+                window.location.href = '/war_test'
+            })
+
+            $('#enemy_create').click(function(){
+                $.ajax({
+                    'url':'/enermys_create',
+                    'type':'post',
+                    'data':{'state_enemy_create':state_enemy_create},
+                    'datatype':'json'
+                }).done(function(data){})
+                window.location.href = '/war_test'
+            })
+        })
+
+        
+
+
+    </script>
+</head>
+<body>
+    <p>位置计算函数</p>
+    <input class="btn btn-info" type="button" value="" id="position_calc">
+    <p>敌机生成函数</p>
+    <input class="btn btn-info" type="button" value="" id="enemy_create">
+</body>
+</html>

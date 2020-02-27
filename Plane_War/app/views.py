@@ -236,6 +236,20 @@ def logout(request):
 # 敌机生成操作
 def enermys_create(request):
     print('敌机生成函数开始运行!')
+    try:
+        state = Developer.objects.get(id=1)
+        state_enemy_create = request.POST.get('state_enemy_create')
+    except Exception as r:
+        print(r)
+    else:
+        if state_enemy_create == '1':
+            state.enermys_create = False
+            state.save()
+        elif state_enemy_create == '0':
+            state.enermys_create = True
+            state.save()
+
+
     while True:
         state = Developer.objects.get(id=1)
         if state.enermys_create == False:
@@ -264,15 +278,53 @@ def enermys_create(request):
             speed = -1
             left = 0
             top = (pos-0.75)/0.25*(w1-100)+50
-        print(pos, angle, left, top)
         # 创建敌机
         Enermys.objects.create(plane_speed = speed, plane_angle = angle, plane_ps_left = left, plane_ps_top = top)
     return HttpResponse('生成敌机!') 
 
+# 子弹生成函数
+def bullets_create(request):
+
+    pass
+
+
 # 位置计算函数
+allpositions = []
+def position_list(allpositions):
+    try:
+        planes = Planes.objects.filter(plane_life=True)
+    except:
+        pass
+    else:
+        for i in planes:
+            allpositions.append({'plane_id':i.id, 'left':i.plane_ps_left, 'top': i.plane_ps_top})
+
+    try:
+        enemys = Enermys.objects.filter(plane_life=True)
+    except:
+        pass
+    else:
+        for i in enemys:
+            allpositions.append({'plane_id':i.id, 'left':i.plane_ps_left, 'top': i.plane_ps_top})
 def position_calc(request):
     print('位置计算函数开始运行!')
+    try:
+        state = Developer.objects.get(id=1)
+        state_position_calc = request.POST.get('state_position_calc')
+    except Exception as r:
+        print(r)
+    else:
+        if state_position_calc == '1':
+            state.position_calc = False
+            state.save()
+        elif state_position_calc == '0':
+            state.position_calc = True
+            state.save()
+
     while True:
+        allpositions = []
+        position_list(allpositions)
+        print(allpositions)
         state = Developer.objects.get(id=1)
         if state.position_calc == False:
             break
@@ -291,7 +343,7 @@ def position_calc(request):
                 map_left  = i.map_ps_left  # 地图位置x
                 map_top  = i.map_ps_top  # 地图位置y
                 life = i.plane_life  # 是否存活
-                # print('前',map_left,map_top)
+
                 # 2.根据速度和角度,计算飞机位置和地图位置
                 left = left + math.sin(math.pi*(angle)/180)*speed
                 top = top - math.cos(math.pi*(angle)/180)*speed
@@ -303,15 +355,34 @@ def position_calc(request):
                 i.map_ps_top = map_top
                 i.save()
 
-                # 3.判断飞机是否坠毁
+                # 3.判断飞机是否撞墙
                 x = left - w1/2 
                 y = top - w1/2
-                if (x*x)+(y*y) >= w1*w1/4:
+                if (x*x)+(y*y) >= w1*w1/4 or left < 0 or top < 0:
                     i.plane_life = False
                     i.plane_ps_left = w1/2
                     i.plane_ps_top = w1/2
                     i.plane_angle = 0
                     i.save()
+
+                # 4.判断飞机是否撞到敌机
+                # 敌机57*43
+                # 飞机46*57
+                for p in allpositions:
+                    if i.id != p['plane_id']:
+                        plane_l = left + math.sin(math.pi*(45-angle)/180)*32.5
+                        plane_t = top + math.cos(math.pi*(45-angle)/180)*32.5
+                        enemy_l = p['left'] + math.sin(math.pi*(45-angle)/180)*32.5
+                        enemy_t = p['top'] + math.sin(math.pi*(45-angle)/180)*32.5
+                        if (plane_l-enemy_l)**2 + (plane_t-enemy_t)**2 <= 2000:
+                            i.plane_life = False
+                            i.plane_ps_left = w1/2
+                            i.plane_ps_top = w1/2
+                            i.plane_angle = 0
+                            i.save()
+                            enermy = Enermys.objects.get(id=p['plane_id'])
+                            enermy.delete()
+
 
         # 获取所有存活敌机
         try:
@@ -335,13 +406,27 @@ def position_calc(request):
                 i.plane_ps_top = top
                 i.save()    
 
-                # 4.判断飞机是否坠毁
+                # 4.判断飞机超过边界则消失
                 if left >= w1 or top >= w1 or left < 0 or top < 0:
                     i.delete()
 
 
 
     if state.position_calc == True:
-        return HttpResponse('开启完成')
+        return HttpResponse('开启完成!')
     else:
         return HttpResponse('关闭完成')
+
+# 测试页面
+def war_test(request):
+
+    return render(request, 'app/war_test.html')
+
+# 测试页面操作
+def war_test_handle(request):
+
+    state = Developer.objects.get(id=1)
+
+    return JsonResponse({'position_calc':state.position_calc,
+                         'enermys_create':state.enermys_create,
+                        })

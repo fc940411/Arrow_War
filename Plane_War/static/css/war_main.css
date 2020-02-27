@@ -1,7 +1,7 @@
 .background{
     margin:0 auto;
     font-size: 15px;
-    background: grey;
+    background-color: white;
     font-family:"Microsoft YaHei";
 }
 
@@ -16,19 +16,10 @@
 .war_map{
 	width: 1000px;
 	height: 1000px;
-	background-color: yellow;
+	background-color: grey;
 	opacity:0.5;
 	border-radius: 50%;
 }
-
-/*.war_map_border{
-	width: 600px;
-	height: 600px;
-	background-color: yellow;
-	opacity:0.7;
-	border-radius: 50%;
-	z-index:20;
-}*/
 
 .hero{
 	z-index:25;

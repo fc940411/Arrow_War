@@ -30,42 +30,39 @@
                 'datatype':'json',
                 'data':'',
             }).done(function(data){
-                plane_left = data.left
-                plane_height = data.top
-                plane_rotate = data.angle
-                plane_life = data.life
-                map_left = data.map_left
-                map_height = data.map_top
-
+                $('.enemys').css({})
+                $('.bullets').css({})
+                $('.other_planes').css({})
+                $('.enemys').remove()
+                $('.bullets').remove()
                 $('.other_planes').remove()
 
-                $('.enemys').remove()
-                $('.enemys').css({
-                })
-
+                var war_map_width = $(window).width()
+                var war_map_top = $(window).height()
+                map_left= (war_map_width-data.war_map)/2 - (data.left-(data.war_map-46)/2)
+                map_top = (war_map_top-data.war_map)/2 - (data.top-(data.war_map-46)/2)
                 $('.map').css({
-                    'width': data.map+'px',
-                    'height': data.map+'px',
+                    'width': war_map_width+'px',
+                    'height': war_map_top+'px',
                 })
-
                 $('.war_map').css({
+                    'left':map_left+'px',
+                    'top':map_top+'px',
                     'width': data.war_map+'px',
                     'height': data.war_map+'px',
-                    'position':'relative',
-                    'left':map_left+'px',
-                    'top':map_height+'px',
                 })
                 $('.hero').css({
-                    'position':'relative',
-                    'left':plane_left+'px',
-                    'top':plane_height+'px',
+                    'left':data.left+'px',
+                    'top':data.top+'px',
                     'transform-origin':'50% 43%',
                     'transform':'rotate('+data.angle+'deg)',
                 })
 
+
+
                 function create_otherplane(num, left, top, angle){
-                    $('.war_map').append("<img src='static/fonts/image/plane.png' alt='飞机' class = 'other_planes' id="+num+">")
-                    $('#'+num).css({
+                    $('.war_map').append("<img src='static/fonts/image/plane.png' alt='飞机' class = 'other_planes' id=otherplane"+num+">")
+                    $('#otherplane'+num).css({
                         'position':'relative',
                         'left':left+'px',
                         'top':top+'px',
@@ -75,15 +72,29 @@
                 }
 
                 function create_enemy(num, left, top, angle){
-                    $('.war_map').append("<img src='static/fonts/image/enemy1.png' alt='敌机' class = 'enemys' id="+num+">")
-                    $('#'+num).css({
+                    $('.war_map').append("<img src='static/fonts/image/enemy1.png' alt='敌机' class = 'enemys' id=enemy"+num+">")
+                    $('#enemy'+num).css({
                         'position':'absolute',
                         'left':left+'px',
                         'top':top+'px',
-                        'transform-origin':'50% 43%',
+                        'transform-origin':'50% 50%',
                         'transform':'rotate('+angle+'deg)',
+                        'z-index':24+i,
                     }) 
                 }
+
+                function create_bullet(num, left, top, angle){
+                    $('.war_map').append("<img src='static/fonts/image/bullet1.png' alt='子弹' class = 'bullets' id=bullet"+num+">")
+                    $('#bullet'+num).css({
+                        'position':'absolute',
+                        'left':left+'px',
+                        'top':top+'px',
+                        'transform-origin':'50% 50%',
+                        'transform':'rotate('+angle+'deg)',
+                        'z-index':200+i,
+                    }) 
+                }
+
 
                 if(data.other_planes!=''){
                     for(i in data.other_planes){
@@ -94,15 +105,18 @@
                 if(data.enermys!=''){
                     for(i in data.enermys){
                         create_enemy(i, data.enermys[i].left, data.enermys[i].top, data.enermys[i].angle)
-                        $('#'+i).css({
-                            'z-index':24+i,
-                        })
+                    }  
+                }
+
+                if(data.bullets!=''){
+                    for(i in data.bullets){
+                        create_bullet(i, data.bullets[i].left, data.bullets[i].top, data.bullets[i].angle)
                     }  
                 }
 
 
 
-                if(plane_life==false){
+                if(data.life==false){
                     window.location.href = '/personal'
                     alert('您已坠毁!')
                 }
@@ -113,7 +127,7 @@
             $('.col-xs-2').css({
                 'color':'white',
             })
-            setInterval(war_handle,50)  
+            setInterval(war_handle,10)  
         })
 
         window.onunload=function(){

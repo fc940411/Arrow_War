@@ -5,6 +5,7 @@ from app.models import PlaneStyle
 from app.models import WeaponStyle
 from app.models import Developer
 from app.models import Enermys
+from app.models import Bullets_Plane
 
 
 # 自定义模型管理类
@@ -16,6 +17,7 @@ class DeveloperAdmin(admin.ModelAdmin):
     list_display = ['id',
                     'position_calc',
                     'enermys_create',
+                    'bullets_create',
                     ]
     actions_on_bottom = True
 
@@ -44,8 +46,6 @@ class PlanesAdmin(admin.ModelAdmin):
                     'plane_angle', 
                     'plane_ps_left', 
                     'plane_ps_top', 
-                    'map_ps_left', 
-                    'map_ps_top', 
                     ]
     actions_on_bottom = True
 
@@ -86,7 +86,18 @@ class WeaponStyleAdmin(admin.ModelAdmin):
                     'weapon_3',]
     actions_on_bottom = True
 
-
+'''子弹管理类'''
+class Bullets_PlaneAdmin(admin.ModelAdmin):
+    '''子弹管理类'''
+    list_display = ['parent',
+                    'bullet_style', 
+                    'bullet_speed', 
+                    'bullet_angle', 
+                    'bullet_ps_left',
+                    'bullet_ps_top',
+                    'bullet_life',
+                    ]
+    actions_on_bottom = True
 
 
 # Register your models here.
@@ -96,3 +107,4 @@ admin.site.register(Users, UsersAdmin)
 admin.site.register(PlaneStyle, PlaneStyleAdmin)
 admin.site.register(WeaponStyle, WeaponStyleAdmin)
 admin.site.register(Enermys, EnermysAdmin)
+admin.site.register(Bullets_Plane, Bullets_PlaneAdmin)

@@ -12,13 +12,13 @@
         $(function(){
             var state_position_calc
             var state_enemy_create
+            var state_bullets_create
             $.ajax({
                 'url':'/war_test_handle',
                 'type':'post',
                 'data':'',
                 'datatype':'json',
             }).done(function(data){
-                console.log(data.position_calc, data.enermys_create)
                 if(data.position_calc==true){
                     $('#position_calc').css({
                         'background-color':'green',
@@ -47,6 +47,21 @@
                     $('#enemy_create').val('关闭')
                     state_enemy_create = 0
                 }
+
+                if(data.bullets_create==true){
+                    $('#bullets_create').css({
+                        'background-color':'green',
+                    })
+                    $('#bullets_create').val('开启')
+                    state_bullets_create = 1
+                }
+                if(data.bullets_create==false){
+                    $('#bullets_create').css({
+                        'background-color':'red',
+                    })
+                    $('#bullets_create').val('关闭')
+                    state_bullets_create = 0
+                }
             })
 
             $('#position_calc').click(function(){
@@ -68,6 +83,16 @@
                 }).done(function(data){})
                 window.location.href = '/war_test'
             })
+
+            $('#bullets_create').click(function(){
+                $.ajax({
+                    'url':'/bullets_create',
+                    'type':'post',
+                    'data':{'state_bullets_create':state_bullets_create},
+                    'datatype':'json'
+                }).done(function(data){})
+                window.location.href = '/war_test'
+            })
         })
 
         
@@ -80,5 +105,7 @@
     <input class="btn btn-info" type="button" value="" id="position_calc">
     <p>敌机生成函数</p>
     <input class="btn btn-info" type="button" value="" id="enemy_create">
+    <p>子弹生成函数</p>
+    <input class="btn btn-info" type="button" value="" id="bullets_create">
 </body>
 </html>

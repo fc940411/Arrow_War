@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect  # 重定向函数,直接输入url 
 from django.http import HttpResponse, JsonResponse
 from django.template import loader, RequestContext
-from app.models import Users, PlaneStyle, WeaponStyle, Planes, Enermys, Developer
+from app.models import Users, PlaneStyle, WeaponStyle, Planes, Enermys, Developer, Bullets_Plane
 from django.db.models import Q
 import json
 import math
@@ -11,9 +11,7 @@ import random
 
 
 # Create your views here.
-w1 = 1000  # 战场地图大小
-w2 = 400  # 窗口大小
-
+w1 = 2000  # 战场地图大小
 
 # 首页,即登录页
 def index(request):
@@ -52,10 +50,9 @@ def register_handle(request):
     except:
         Users.objects.create(username,password,truename)
         user_id = Users.objects.get(Q(user_name__exact=username)&Q(password__exact=password))
-        print(user_id,type(user_id),user_id.id)
         PlaneStyle.objects.create(parent_id=user_id.id)
         WeaponStyle.objects.create(parent_id=user_id.id)
-        Planes.objects.create(parent_id=user_id.id)
+        Planes.objects.create(parent_id=user_id.id, plane_ps_left=w1/2, plane_ps_top=w1/2)
         return JsonResponse({'res':1})
     else:
         return JsonResponse({'res':0})
@@ -143,13 +140,6 @@ def war_handle(request):
     # 1.获取飞机
     user_id = request.session.get('user_id')
     plane = Planes.objects.get(parent=user_id)
-    speed = plane.plane_speed  # 速度
-    angle = plane.plane_angle  # 角度
-    left = plane.plane_ps_left  # 位置x
-    top = plane.plane_ps_top  # 位置y
-    map_left  = plane.map_ps_left  # 地图位置x
-    map_top  = plane.map_ps_top  # 地图位置y
-    life = plane.plane_life  # 是否存活
 
     # 获取其他飞机
     try:
@@ -175,24 +165,35 @@ def war_handle(request):
         all_enermys = []
         for i in enermys:
             enermy_information = {'plane_style':i.plane_style, 
-                                 'weapon_style':i.weapon_style, 
-                                 'left':i.plane_ps_left, 
-                                 'top':i.plane_ps_top, 
-                                 'angle':i.plane_angle}
+                                  'weapon_style':i.weapon_style, 
+                                  'left':i.plane_ps_left, 
+                                  'top':i.plane_ps_top, 
+                                  'angle':i.plane_angle}
             all_enermys.append(enermy_information)
 
-
+    # 获取子弹
+    try:
+        bullets = Bullets_Plane.objects.filter(bullet_life=True)
+    except:
+        all_bullets = ''
+    else:
+        all_bullets = []
+        for i in bullets:
+            bullet_information = {'bullet_style':i.bullet_style,  
+                                  'left':i.bullet_ps_left, 
+                                  'top':i.bullet_ps_top, 
+                                  'angle':i.bullet_angle}
+            all_bullets.append(bullet_information)
+    
     return JsonResponse({'war_map':w1,
-                         'map':w2,
-                         'speed':speed,
-                         'angle':angle,
-                         'left':left,
-                         'top':top,
-                         'life':life,
-                         'map_top':map_top,
-                         'map_left':map_left,
+                         'speed':plane.plane_speed,
+                         'angle':plane.plane_angle,
+                         'left':plane.plane_ps_left,
+                         'top':plane.plane_ps_top,
+                         'life':plane.plane_life,
                          'other_planes':other_planes,
                          'enermys':all_enermys,
+                         'bullets':all_bullets,
                         })
 
 # 操作飞机
@@ -204,9 +205,9 @@ def plane_handle(request):
     # 2.获取方向
     direction = request.POST.get('direction')
     if direction == 'left':
-        plane.plane_angle = plane.plane_angle - 0.5
+        plane.plane_angle = plane.plane_angle - 2
     elif direction == 'right':
-        plane.plane_angle = plane.plane_angle + 0.5
+        plane.plane_angle = plane.plane_angle + 2
     plane.save()
 
     return JsonResponse({'res':'finish'})
@@ -218,7 +219,7 @@ def set_session(request):
     request.session['user_id'] = int(user_id)
     request.session['islogin'] = True
     request.session.set_expiry(0)
-    return HttpResponse()
+    return HttpResponse('设置成功!')
 
 # 用户登出操作
 def logout(request):
@@ -254,7 +255,7 @@ def enermys_create(request):
         state = Developer.objects.get(id=1)
         if state.enermys_create == False:
             break
-        time.sleep(5)
+        time.sleep(3)
         
         pos = random.random()
 
@@ -284,9 +285,42 @@ def enermys_create(request):
 
 # 子弹生成函数
 def bullets_create(request):
+    # 子弹5*11
+    print('子弹生成函数开始运行!')
+    try:
+        state = Developer.objects.get(id=1)
+        state_bullets_create = request.POST.get('state_bullets_create')
+    except Exception as r:
+        print(r)
+    else:
+        if state_bullets_create == '1':
+            state.bullets_create = False
+            state.save()
+        elif state_bullets_create == '0':
+            state.bullets_create = True
+            state.save()
 
-    pass
 
+    while True:
+        state = Developer.objects.get(id=1)
+        if state.bullets_create == False:
+            break
+        time.sleep(1)
+        try:
+            planes = Planes.objects.filter(plane_life=True)
+        except:
+            pass
+        else:
+            for i in planes:
+                # 创建子弹
+                Bullets_Plane.objects.create(parent_id = i.parent.id,
+                                             bullet_speed = (i.plane_speed+5), 
+                                             bullet_angle = i.plane_angle, 
+                                             bullet_ps_left = (i.plane_ps_left+math.cos(math.pi*i.plane_angle/180)*20), 
+                                             bullet_ps_top = (i.plane_ps_top+math.sin(math.pi*i.plane_angle/180)*20),
+                                             bullet_life = True, 
+                                             )
+    return HttpResponse('生成子弹!') 
 
 # 位置计算函数
 allpositions = []
@@ -297,7 +331,7 @@ def position_list(allpositions):
         pass
     else:
         for i in planes:
-            allpositions.append({'plane_id':i.id, 'left':i.plane_ps_left, 'top': i.plane_ps_top})
+            allpositions.append({'plane_id':i.parent.id, 'left':i.plane_ps_left, 'top':i.plane_ps_top, 'angle':i.plane_angle, 'style':'plane'})
 
     try:
         enemys = Enermys.objects.filter(plane_life=True)
@@ -305,7 +339,42 @@ def position_list(allpositions):
         pass
     else:
         for i in enemys:
-            allpositions.append({'plane_id':i.id, 'left':i.plane_ps_left, 'top': i.plane_ps_top})
+            allpositions.append({'plane_id':i.id, 'left':i.plane_ps_left, 'top': i.plane_ps_top, 'angle':i.plane_angle, 'style':'enemy'})
+def position_repeat(i, type):
+    # 根据速度和角度,计算飞机位置和地图位置
+    if type == 'plane' or type == 'enemy':
+        left = i.plane_ps_left + math.sin(math.pi*(i.plane_angle)/180)*i.plane_speed
+        top = i.plane_ps_top - math.cos(math.pi*(i.plane_angle)/180)*i.plane_speed
+        i.plane_ps_left = left
+        i.plane_ps_top = top
+        i.save()
+    elif type == 'bullet':
+        bullet_left = i.bullet_ps_left + math.sin(math.pi*(i.bullet_angle)/180)*i.bullet_speed
+        bullet_top = i.bullet_ps_top - math.cos(math.pi*(i.bullet_angle)/180)*i.bullet_speed
+        i.bullet_ps_left = bullet_left
+        i.bullet_ps_top = bullet_top
+        i.save()
+
+    # 判断是否撞墙
+    if type == 'plane':
+        x = i.plane_ps_left - w1/2 
+        y = i.plane_ps_top - w1/2
+        if (x*x)+(y*y) >= w1*w1/4 or left < 0 or top < 0:
+            i.plane_life = False
+            i.plane_ps_left = w1/2
+            i.plane_ps_top = w1/2
+            i.plane_angle = 0
+            i.save()
+    elif type == 'enemy':
+        if i.plane_ps_left >= w1 or i.plane_ps_top >= w1 or i.plane_ps_left < 0 or i.plane_ps_top < 0:
+            i.delete()
+    elif type == 'bullet':
+        x = i.bullet_ps_left - w1/2 
+        y = i.bullet_ps_top - w1/2
+        left = i.bullet_ps_left + math.sin(math.pi*(i.bullet_angle)/180)*i.bullet_speed
+        top = i.bullet_ps_top - math.cos(math.pi*(i.bullet_angle)/180)*i.bullet_speed
+        if (x*x)+(y*y) >= w1*w1/4 or left < 0 or top < 0:
+            i.delete()
 def position_calc(request):
     print('位置计算函数开始运行!')
     try:
@@ -324,7 +393,6 @@ def position_calc(request):
     while True:
         allpositions = []
         position_list(allpositions)
-        print(allpositions)
         state = Developer.objects.get(id=1)
         if state.position_calc == False:
             break
@@ -336,45 +404,19 @@ def position_calc(request):
             pass
         else:
             for i in planes:
-                speed = i.plane_speed  # 速度
-                angle = i.plane_angle  # 角度
-                left = i.plane_ps_left  # 位置x
-                top = i.plane_ps_top  # 位置y
-                map_left  = i.map_ps_left  # 地图位置x
-                map_top  = i.map_ps_top  # 地图位置y
-                life = i.plane_life  # 是否存活
+                position_repeat(i, 'plane')
 
-                # 2.根据速度和角度,计算飞机位置和地图位置
-                left = left + math.sin(math.pi*(angle)/180)*speed
-                top = top - math.cos(math.pi*(angle)/180)*speed
-                map_left= (w2-w1)/2 - (left-(w1-46)/2)
-                map_top = (w2-w1)/2 - (top-(w1-46)/2)
-                i.plane_ps_left = left
-                i.plane_ps_top = top
-                i.map_ps_left = map_left
-                i.map_ps_top = map_top
-                i.save()
-
-                # 3.判断飞机是否撞墙
-                x = left - w1/2 
-                y = top - w1/2
-                if (x*x)+(y*y) >= w1*w1/4 or left < 0 or top < 0:
-                    i.plane_life = False
-                    i.plane_ps_left = w1/2
-                    i.plane_ps_top = w1/2
-                    i.plane_angle = 0
-                    i.save()
-
-                # 4.判断飞机是否撞到敌机
+                # 判断飞机是否撞到敌机
                 # 敌机57*43
                 # 飞机46*57
+                # 子弹5*11
                 for p in allpositions:
-                    if i.id != p['plane_id']:
-                        plane_l = left + math.sin(math.pi*(45-angle)/180)*32.5
-                        plane_t = top + math.cos(math.pi*(45-angle)/180)*32.5
-                        enemy_l = p['left'] + math.sin(math.pi*(45-angle)/180)*32.5
-                        enemy_t = p['top'] + math.sin(math.pi*(45-angle)/180)*32.5
-                        if (plane_l-enemy_l)**2 + (plane_t-enemy_t)**2 <= 2000:
+                    if i.parent.id != p['plane_id']:
+                        plane_l = i.plane_ps_left + math.sin(math.pi*(45-i.plane_angle)/180)*32.5
+                        plane_t = i.plane_ps_top + math.cos(math.pi*(45-i.plane_angle)/180)*32.5
+                        enemy_l = p['left'] + math.sin(math.pi*(45-p['angle'])/180)*28.5
+                        enemy_t = p['top'] + math.sin(math.pi*(45-p['angle'])/180)*28.5
+                        if (plane_l-enemy_l)**2 + (plane_t-enemy_t)**2 <= 1800:
                             i.plane_life = False
                             i.plane_ps_left = w1/2
                             i.plane_ps_top = w1/2
@@ -391,26 +433,42 @@ def position_calc(request):
             pass
         else:
             for i in enermys:
-                speed = i.plane_speed  # 速度
-                angle = i.plane_angle  # 角度
-                left = i.plane_ps_left  # 位置x
-                top = i.plane_ps_top  # 位置y
-                life = i.plane_life  # 是否存活
+                position_repeat(i, 'enemy')
 
-                # 2.根据速度和角度,计算飞机位置和地图位置
-                left = left + math.sin(math.pi*(angle)/180)*speed
-                top = top - math.cos(math.pi*(angle)/180)*speed
-     
-                # 3.输出敌机位置
-                i.plane_ps_left = left
-                i.plane_ps_top = top
-                i.save()    
-
-                # 4.判断飞机超过边界则消失
-                if left >= w1 or top >= w1 or left < 0 or top < 0:
-                    i.delete()
-
-
+        # 获取所有存活子弹
+        try:
+            bullets = Bullets_Plane.objects.filter(bullet_life=True)
+        except:
+            pass
+        else:
+            for i in bullets:
+                user_id = request.session.get('user_id')
+                position_repeat(i, 'bullet')
+                # 判断子弹是否击中飞机
+                for p in allpositions:
+                    bullet_l = i.bullet_ps_left + math.sin(math.pi*(45-i.bullet_angle)/180)*6
+                    bullet_t = i.bullet_ps_top + math.cos(math.pi*(45-i.bullet_angle)/180)*6
+                    plane_l = p['left'] + math.sin(math.pi*(45-p['angle'])/180)*28.5
+                    plane_t = p['top'] + math.sin(math.pi*(45-p['angle'])/180)*28.5
+                    if (bullet_l-plane_l)**2 + (bullet_t-plane_t)**2 <= 1500:
+                        if p['style'] == 'plane':
+                            plane = Planes.objects.get(parent_id=p['plane_id'])
+                            if p['plane_id'] != user_id:
+                                plane.plane_life = False
+                                plane.plane_ps_left = w1/2
+                                plane.plane_ps_top = w1/2
+                                plane.plane_angle = 0
+                                plane.save()
+                        elif p['style'] == 'enemy':
+                            try:
+                                enemy = Enermys.objects.get(id=p['plane_id'])
+                            except:
+                                pass
+                            else:
+                                enemy.delete()
+                                i.parent.score = i.parent.score + 1
+                                i.parent.save()
+                                i.delete()
 
     if state.position_calc == True:
         return HttpResponse('开启完成!')
@@ -429,4 +487,5 @@ def war_test_handle(request):
 
     return JsonResponse({'position_calc':state.position_calc,
                          'enermys_create':state.enermys_create,
+                         'bullets_create':state.bullets_create,
                         })

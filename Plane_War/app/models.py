@@ -2,7 +2,7 @@ from django.db import models
 
 # Create your models here.
 
-'''用户管理类'''
+# 用户管理类
 class UserManager(models.Manager):
     '''用户管理类'''
 
@@ -21,7 +21,7 @@ class UserManager(models.Manager):
         return user
 
 
-'''开发者类'''
+# 开发者类
 class Developer(models.Model):
     '''开发者类'''
     class Meta:
@@ -34,12 +34,16 @@ class Developer(models.Model):
     # 敌机生成函数
     enermys_create = models.BooleanField(verbose_name='敌机生成状态', default=False)
 
+    # 子弹生成函数
+    bullets_create = models.BooleanField(verbose_name='子弹生成状态', default=False)
+
+
     # def __str__(self):
     #     # 返回用户名
     #     return '开发者'
 
 
-'''用户类'''
+# 用户类
 class Users(models.Model):
     '''用户类'''
     
@@ -68,7 +72,7 @@ class Users(models.Model):
         return self.user_name
 
 
-'''飞机样式类'''
+# 飞机样式类
 class PlaneStyle(models.Model):
     '''飞机样式类'''
 
@@ -88,7 +92,7 @@ class PlaneStyle(models.Model):
     parent = models.ForeignKey(Users,on_delete=models.CASCADE, verbose_name='用户') 
 
 
-'''武器样式类'''
+# 武器样式类
 class WeaponStyle(models.Model):
     '''武器样式类'''
 
@@ -126,17 +130,13 @@ class Planes(models.Model):
     # 武器类型
     weapon_style = models.FloatField(verbose_name='武器类型', default=1)
     # 飞机速度
-    plane_speed = models.FloatField(verbose_name='速度', default=1)
+    plane_speed = models.FloatField(verbose_name='速度', default=5)
     # 飞机角度
     plane_angle = models.FloatField(verbose_name='角度', default=0)
     # 飞机位置x
     plane_ps_left = models.FloatField(verbose_name='位置x', default=map_width/2)
     # 飞机位置y
     plane_ps_top = models.FloatField(verbose_name='位置y', default=map_width/2)
-    # 地图位置x
-    map_ps_left = models.FloatField(verbose_name='位置x', default=(view_width-map_width)/2)
-    # 地图位置y
-    map_ps_top = models.FloatField(verbose_name='位置y', default=(view_width-map_width)/2)
 
     # 是否存活
     plane_life = models.BooleanField(verbose_name='是否存活', default=False)
@@ -161,7 +161,7 @@ class Enermys(models.Model):
     # 武器类型
     weapon_style = models.FloatField(verbose_name='武器类型', default=1)
     # 敌机速度
-    plane_speed = models.FloatField(verbose_name='速度', default=1)
+    plane_speed = models.FloatField(verbose_name='速度', default=5)
     # 敌机角度
     plane_angle = models.FloatField(verbose_name='角度', default=0)
     # 敌机位置x
@@ -170,3 +170,26 @@ class Enermys(models.Model):
     plane_ps_top = models.FloatField(verbose_name='位置y', default=0)
     # 是否存活
     plane_life = models.BooleanField(verbose_name='是否存活', default=True)
+
+
+# 子弹类
+class Bullets_Plane(models.Model):
+    '''子弹类'''
+    class Meta:
+        verbose_name='子弹样式'
+        verbose_name_plural = '子弹样式'
+
+    # 默认子弹样式
+    bullet_style = models.IntegerField(verbose_name='默认样式', default=0)
+    # 子弹速度
+    bullet_speed = models.FloatField(verbose_name='速度', default=10)
+    # 子弹角度
+    bullet_angle = models.FloatField(verbose_name='角度', default=0)
+    # 子弹位置x
+    bullet_ps_left = models.FloatField(verbose_name='位置x', default=0)
+    # 子弹位置y
+    bullet_ps_top = models.FloatField(verbose_name='位置y', default=0)
+    # 是否存活
+    bullet_life = models.BooleanField(verbose_name='是否存活', default=False)
+    # 关联用户类
+    parent = models.ForeignKey(Users,on_delete=models.CASCADE, verbose_name='用户')

@@ -11,7 +11,7 @@ import random
 
 
 # Create your views here.
-w1 = 2000  # 战场地图大小
+w1 = 1000  # 战场地图大小
 
 # 首页,即登录页
 def index(request):
@@ -205,9 +205,9 @@ def plane_handle(request):
     # 2.获取方向
     direction = request.POST.get('direction')
     if direction == 'left':
-        plane.plane_angle = plane.plane_angle - 2
+        plane.plane_angle = plane.plane_angle - 1.5
     elif direction == 'right':
-        plane.plane_angle = plane.plane_angle + 2
+        plane.plane_angle = plane.plane_angle + 1.5
     plane.save()
 
     return JsonResponse({'res':'finish'})
@@ -261,22 +261,22 @@ def enermys_create(request):
 
         if pos >= 0 and pos < 0.25:
             angle = 0
-            speed = -1
+            speed = -5
             left = pos/0.25*(w1-100)+50
             top = 0
         elif pos >= 0.25 and pos < 0.5:    
             angle = 90
-            speed = -1
+            speed = -5
             left = w1
             top = (pos-0.25)/0.25*(w1-100)+50
         elif pos >= 0.5 and pos < 0.75:    
             angle = 180
-            speed = -1
+            speed = -5
             left = (pos-0.5)/0.25*(w1-100)+50
             top = w1
         elif pos >= 0.75 and pos <= 1:    
             angle = 270
-            speed = -1
+            speed = -5
             left = 0
             top = (pos-0.75)/0.25*(w1-100)+50
         # 创建敌机
@@ -305,7 +305,7 @@ def bullets_create(request):
         state = Developer.objects.get(id=1)
         if state.bullets_create == False:
             break
-        time.sleep(1)
+        time.sleep(3)
         try:
             planes = Planes.objects.filter(plane_life=True)
         except:
@@ -314,10 +314,13 @@ def bullets_create(request):
             for i in planes:
                 # 创建子弹
                 Bullets_Plane.objects.create(parent_id = i.parent.id,
-                                             bullet_speed = (i.plane_speed+5), 
+                                             bullet_speed = (i.plane_speed+20), 
                                              bullet_angle = i.plane_angle, 
-                                             bullet_ps_left = (i.plane_ps_left+math.cos(math.pi*i.plane_angle/180)*20), 
-                                             bullet_ps_top = (i.plane_ps_top+math.sin(math.pi*i.plane_angle/180)*20),
+                                             # 敌机57*43  飞机46*57  子弹5*11
+                                             # bullet_ps_left = (i.plane_ps_left+math.cos(math.pi*i.plane_angle/180)*20), 
+                                             # bullet_ps_top = (i.plane_ps_top+math.sin(math.pi*i.plane_angle/180)*20),
+                                             bullet_ps_left = (i.plane_ps_left+math.sin(math.pi*i.plane_angle/180)*28.5), 
+                                             bullet_ps_top = (i.plane_ps_top-math.cos(math.pi*i.plane_angle/180)*28.5),
                                              bullet_life = True, 
                                              )
     return HttpResponse('生成子弹!') 
@@ -357,9 +360,9 @@ def position_repeat(i, type):
 
     # 判断是否撞墙
     if type == 'plane':
-        x = i.plane_ps_left - w1/2 
+        x = i.plane_ps_left - w1/2
         y = i.plane_ps_top - w1/2
-        if (x*x)+(y*y) >= w1*w1/4 or left < 0 or top < 0:
+        if x**2+ y**2 >= (w1/2-23)**2 or left < 0 or top < 0:
             i.plane_life = False
             i.plane_ps_left = w1/2
             i.plane_ps_top = w1/2
@@ -371,9 +374,7 @@ def position_repeat(i, type):
     elif type == 'bullet':
         x = i.bullet_ps_left - w1/2 
         y = i.bullet_ps_top - w1/2
-        left = i.bullet_ps_left + math.sin(math.pi*(i.bullet_angle)/180)*i.bullet_speed
-        top = i.bullet_ps_top - math.cos(math.pi*(i.bullet_angle)/180)*i.bullet_speed
-        if (x*x)+(y*y) >= w1*w1/4 or left < 0 or top < 0:
+        if (x*x)+(y*y) >= w1*w1/4 or i.bullet_ps_left < 0 or i.bullet_ps_top < 0:
             i.delete()
 def position_calc(request):
     print('位置计算函数开始运行!')
@@ -396,7 +397,17 @@ def position_calc(request):
         state = Developer.objects.get(id=1)
         if state.position_calc == False:
             break
-        time.sleep(0.02)
+        time.sleep(0.06)
+
+        # 获取所有存活敌机
+        try:
+            enermys = Enermys.objects.filter(plane_life=True)
+        except:
+            pass
+        else:
+            for i in enermys:
+                position_repeat(i, 'enemy')
+
         # 获取所有存活英雄飞机
         try:
             planes = Planes.objects.filter(plane_life=True)
@@ -407,16 +418,10 @@ def position_calc(request):
                 position_repeat(i, 'plane')
 
                 # 判断飞机是否撞到敌机
-                # 敌机57*43
-                # 飞机46*57
-                # 子弹5*11
+                # 敌机57*43  飞机46*57  子弹5*11
                 for p in allpositions:
                     if i.parent.id != p['plane_id']:
-                        plane_l = i.plane_ps_left + math.sin(math.pi*(45-i.plane_angle)/180)*32.5
-                        plane_t = i.plane_ps_top + math.cos(math.pi*(45-i.plane_angle)/180)*32.5
-                        enemy_l = p['left'] + math.sin(math.pi*(45-p['angle'])/180)*28.5
-                        enemy_t = p['top'] + math.sin(math.pi*(45-p['angle'])/180)*28.5
-                        if (plane_l-enemy_l)**2 + (plane_t-enemy_t)**2 <= 1800:
+                        if (i.plane_ps_left-p['left'])**2 + (i.plane_ps_top-p['top'])**2 <= 1980:
                             i.plane_life = False
                             i.plane_ps_left = w1/2
                             i.plane_ps_top = w1/2
@@ -424,16 +429,6 @@ def position_calc(request):
                             i.save()
                             enermy = Enermys.objects.get(id=p['plane_id'])
                             enermy.delete()
-
-
-        # 获取所有存活敌机
-        try:
-            enermys = Enermys.objects.filter(plane_life=True)
-        except:
-            pass
-        else:
-            for i in enermys:
-                position_repeat(i, 'enemy')
 
         # 获取所有存活子弹
         try:
@@ -445,15 +440,13 @@ def position_calc(request):
                 user_id = request.session.get('user_id')
                 position_repeat(i, 'bullet')
                 # 判断子弹是否击中飞机
+                # 敌机57*43  飞机46*57  子弹5*11
                 for p in allpositions:
-                    bullet_l = i.bullet_ps_left + math.sin(math.pi*(45-i.bullet_angle)/180)*6
-                    bullet_t = i.bullet_ps_top + math.cos(math.pi*(45-i.bullet_angle)/180)*6
-                    plane_l = p['left'] + math.sin(math.pi*(45-p['angle'])/180)*28.5
-                    plane_t = p['top'] + math.sin(math.pi*(45-p['angle'])/180)*28.5
-                    if (bullet_l-plane_l)**2 + (bullet_t-plane_t)**2 <= 1500:
+                    if (i.bullet_ps_left-p['left'])**2 + (i.bullet_ps_top-p['top'])**2 <= 576:
                         if p['style'] == 'plane':
                             plane = Planes.objects.get(parent_id=p['plane_id'])
                             if p['plane_id'] != user_id:
+                                print(p['plane_id'],type(p['plane_id']),user_id,type(p['plane_id']))
                                 plane.plane_life = False
                                 plane.plane_ps_left = w1/2
                                 plane.plane_ps_top = w1/2
@@ -466,8 +459,9 @@ def position_calc(request):
                                 pass
                             else:
                                 enemy.delete()
-                                i.parent.score = i.parent.score + 1
-                                i.parent.save()
+                                user = Users.objects.get(id=user_id)
+                                user.score = user.score + 1
+                                user.save()
                                 i.delete()
 
     if state.position_calc == True:

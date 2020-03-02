@@ -130,7 +130,7 @@ class Planes(models.Model):
     # 武器类型
     weapon_style = models.FloatField(verbose_name='武器类型', default=1)
     # 飞机速度
-    plane_speed = models.FloatField(verbose_name='速度', default=5)
+    plane_speed = models.FloatField(verbose_name='速度', default=10)
     # 飞机角度
     plane_angle = models.FloatField(verbose_name='角度', default=0)
     # 飞机位置x
@@ -161,7 +161,7 @@ class Enermys(models.Model):
     # 武器类型
     weapon_style = models.FloatField(verbose_name='武器类型', default=1)
     # 敌机速度
-    plane_speed = models.FloatField(verbose_name='速度', default=5)
+    plane_speed = models.FloatField(verbose_name='速度', default=10)
     # 敌机角度
     plane_angle = models.FloatField(verbose_name='角度', default=0)
     # 敌机位置x

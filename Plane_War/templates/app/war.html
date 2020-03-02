@@ -14,9 +14,9 @@
 <body class="background">
     <div class="row map">
         <div class='war_map'>
-            <img src="static/fonts/image/plane.png" alt="飞机" class="hero">
+            <img src="static/fonts/image/plane.png" alt="飞机" class='hero'>
+            <div class='point'></div>
         </div>
-        
     </div>
 
 
@@ -37,47 +37,70 @@
                 $('.bullets').remove()
                 $('.other_planes').remove()
 
-                var war_map_width = $(window).width()
-                var war_map_top = $(window).height()
-                map_left= (war_map_width-data.war_map)/2 - (data.left-(data.war_map-46)/2)
-                map_top = (war_map_top-data.war_map)/2 - (data.top-(data.war_map-46)/2)
+                // var war_map_width = $(window).width()
+                // var war_map_top = $(window).height()
+                var war_map_width = 400
+                var war_map_height = 400
+                var war_map_top = $('.map').offset().top
+                var war_map_left = $('.map').offset().left
+
+                map_left= (war_map_width-data.war_map)/2 - (data.left-data.war_map/2)
+                map_top = (war_map_height-data.war_map)/2 - (data.top-data.war_map/2)
+
                 $('.map').css({
+                    'margin-top':'200px',
                     'width': war_map_width+'px',
-                    'height': war_map_top+'px',
+                    'height': war_map_height+'px',
                 })
+
                 $('.war_map').css({
                     'left':map_left+'px',
                     'top':map_top+'px',
                     'width': data.war_map+'px',
                     'height': data.war_map+'px',
                 })
+
+                hero_left = data.left - 23
+                hero_top =  data.top - 28.5
                 $('.hero').css({
+                    'left':hero_left+'px',
+                    'top':hero_top+'px',
+                    'transform':'rotate('+data.angle+'deg)',
+                    'transform-origin':'50% 50%',
+                    'position':'absolute',
+                })
+                $('.point').css({
                     'left':data.left+'px',
                     'top':data.top+'px',
-                    'transform-origin':'50% 43%',
-                    'transform':'rotate('+data.angle+'deg)',
+                    'height':'3px',
+                    'width':'3px',
+                    'background-color':'red',
+                    'z-index':999,
+                    'position':'absolute',
                 })
 
 
-
+                // 敌机57*43  飞机46*57  子弹5*11
                 function create_otherplane(num, left, top, angle){
                     $('.war_map').append("<img src='static/fonts/image/plane.png' alt='飞机' class = 'other_planes' id=otherplane"+num+">")
+                    left = left - 23
+                    top =  top - 28.5
                     $('#otherplane'+num).css({
-                        'position':'relative',
+                        'position':'absolute',
                         'left':left+'px',
                         'top':top+'px',
-                        'transform-origin':'50% 43%',
                         'transform':'rotate('+angle+'deg)',
                     }) 
                 }
 
                 function create_enemy(num, left, top, angle){
                     $('.war_map').append("<img src='static/fonts/image/enemy1.png' alt='敌机' class = 'enemys' id=enemy"+num+">")
+                    left = left - 28.5
+                    top =  top - 21.5
                     $('#enemy'+num).css({
                         'position':'absolute',
                         'left':left+'px',
                         'top':top+'px',
-                        'transform-origin':'50% 50%',
                         'transform':'rotate('+angle+'deg)',
                         'z-index':24+i,
                     }) 
@@ -85,11 +108,12 @@
 
                 function create_bullet(num, left, top, angle){
                     $('.war_map').append("<img src='static/fonts/image/bullet1.png' alt='子弹' class = 'bullets' id=bullet"+num+">")
+                    left = left - 2.5
+                    top =  top - 5.5
                     $('#bullet'+num).css({
                         'position':'absolute',
                         'left':left+'px',
                         'top':top+'px',
-                        'transform-origin':'50% 50%',
                         'transform':'rotate('+angle+'deg)',
                         'z-index':200+i,
                     }) 
@@ -127,7 +151,7 @@
             $('.col-xs-2').css({
                 'color':'white',
             })
-            setInterval(war_handle,10)  
+            setInterval(war_handle,60)  
         })
 
         window.onunload=function(){

@@ -21,11 +21,19 @@
                 'datatype':'json',
                 'data':'',
             }).done(function(data){
-                for(var i=0;i<data['plane'].length;i++){
-                    $('#plane_style').append("<li class='style_li'>飞机类型"+data['plane'][i]+"</li><br>")
+                for(var i=0;i<=data['plane'].length;i++){
+                    if(i=1){
+                        $('#plane_style').append("<li class='style_li'>默认飞机类型</li><br>")
+                    }else{
+                        $('#plane_style').append("<li class='style_li'>飞机类型"+data['plane'][i]+"</li><br>")
+                    }
                 }
-                for(var i=0;i<data['weapon'].length;i++){
-                    $('#weapon_style').append("<li class='style_li'>武器类型"+data['weapon'][i]+"</li><br>")
+                for(var i=0;i<=data['weapon'].length;i++){
+                    if(i=1){
+                        $('#weapon_style').append("<li class='style_li'>默认武器类型</li><br>")
+                    }else{
+                        $('#weapon_style').append("<li class='style_li'>武器类型"+data['weapon'][i]+"</li><br>")
+                    }
                 }
                 $('.style_li').css({
                     'list-style':'none',

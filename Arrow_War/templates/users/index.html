@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block title %}首页{% endblock title%}
+{% block script %}
+    
+{% endblock script%}
+
+{% block menu_1 %}
+    <a href="#">登陆</a>
+{% endblock menu_1%}
+
+{% block context %}
+    <form class="input-group login_form" method="post" action='/login_check'>
+        <ul class="nav nav-pills nav-stacked menu_ul">
+            <li role="presentation" class='active'>用户名:</li>
+            <li><input type="text" class="form-control" aria-describedby="sizing-addon2" id="username"></li>
+            <li role="presentation" class='active'>密码:</li>
+            <li><input type="password" class="form-control" aria-describedby="sizing-addon2" id="password"></li>
+            <li>
+                <input class="btn btn-info leftbtn" type="button" value="登录" id="login">
+                <a href="./register"><input class="btn btn-info rightbtn" type="button" value="注册"></a>
+            </li>
+        </ul>
+    </from>
+{% endblock context%}

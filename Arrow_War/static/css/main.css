@@ -1,0 +1,56 @@
+.background{
+    margin:50px auto;
+    font-size: 15px;
+    background-color: white;
+    font-family:"Microsoft YaHei";
+}
+
+.title{
+    background: green;
+    border-radius: 30px 5px;
+    padding: 10px;
+    font-size: 20px;
+    font-family:"Microsoft YaHei";
+    color:white;
+    height: 60px;
+    text-align: center;
+}
+
+.title_p{
+    text-align:center;
+    line-height: 40px;
+    height: 40px;
+    margin:0px;
+}
+
+.login_form{
+    margin: 10px auto;
+}
+
+
+/*.login_div{
+    background-color: #0099FF;
+}*/
+
+.menu_ul{
+    padding:20px 0px;
+}
+
+.menu_div{
+    padding:0px 10px;
+}
+
+
+.leftbtn{
+    margin-top:10px;
+    margin-bottom: 10px;
+    margin-left: 5px;
+    float: left;
+}
+
+.rightbtn{
+    margin-top:10px;
+    margin-bottom: 10px;
+    margin-right: 5px;
+    float: right;
+}

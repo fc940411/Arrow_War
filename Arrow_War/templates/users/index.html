@@ -1,7 +1,29 @@
 {% extends 'base.html' %}
 {% block title %}首页{% endblock title%}
 {% block script %}
-    
+    $('#login').click(function(){
+        username = $('#username').val()
+        password = $('#password').val()
+        if(username==''){
+            alert('用户名不能为空!')
+        }
+        else if(password==''){
+            alert('密码不能为空!')
+        }
+        $.ajax({
+            'url':'/index',
+            'type':'post',
+            'data':{'username':username, 'password':password, csrfmiddlewaretoken: '{{ csrf_token }}',},
+            'datatype':'json',
+        }).done(function(data){
+            if(data.errmsg==0){
+                window.location.href = '/personal'
+            }else{
+                alert(data.errmsg)
+            }
+        })
+    })
+
 {% endblock script%}
 
 {% block menu_1 %}
@@ -9,15 +31,16 @@
 {% endblock menu_1%}
 
 {% block context %}
-    <form class="input-group login_form" method="post" action='/login_check'>
+    <form class="input-group login_form" method="post">
+        {% csrf_token%}
         <ul class="nav nav-pills nav-stacked menu_ul">
-            <li role="presentation" class='active'>用户名:</li>
+            <li><span>用户名:</span></li>
             <li><input type="text" class="form-control" aria-describedby="sizing-addon2" id="username"></li>
-            <li role="presentation" class='active'>密码:</li>
+            <li><span>密码:</span></li>
             <li><input type="password" class="form-control" aria-describedby="sizing-addon2" id="password"></li>
             <li>
-                <input class="btn btn-info leftbtn" type="button" value="登录" id="login">
-                <a href="./register"><input class="btn btn-info rightbtn" type="button" value="注册"></a>
+                <input class="btn btn-primary leftbtn" type="button" value="登录" id="login">
+                <a href="/register"><input class="btn btn-primary rightbtn" type="button" value="注册"></a>
             </li>
         </ul>
     </from>

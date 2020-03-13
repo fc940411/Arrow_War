@@ -8,6 +8,8 @@ class UsersAdmin(admin.ModelAdmin):
                     'username',
                     'email',
                     'password',
+                    'nickname',
+                    'is_active'
                     ]
     actions_on_bottom = True
 

@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block title %}{{ nickname }}的首页{% endblock title%}
+{% block script %}
+    $('span').css({
+        'font-size':'15px',
+    })
+
+    $('.personal_ul').css({
+        'margin': '30px 10px'
+    })
+
+    $('li p').css({
+        'font-size':'15px',
+        'font-family':"SimHei"
+    })
+
+    $('#logout').click(function(){
+        $.ajax({
+            'url':'/personal',
+            'type':'post',
+            'data':{csrfmiddlewaretoken: '{{ csrf_token }}'},
+            'datatype':'json',
+        }).done(function(data){
+            if(data.errmsg==0){
+                window.location.href = '/index'
+            }
+        })
+    })
+
+
+{% endblock script%}
+
+{% block menu_1 %}
+    <a href="/index">{{ nickname }}的首页</a>
+{% endblock menu_1%}
+
+{% block context %}
+    <ul class="nav nav-pills nav-stacked personal_ul">
+        <li><span class="label label-info span">最长生存时间</span></li>
+        <li><p align='center'>{{ times }}</p></li>
+        <li><span class="label label-info span">最高积分</span></li>
+        <li><p align='center'>{{ score }}</p></li>
+        <li><span class="label label-info span">最多击杀</span></li>
+        <li><p align='center'>{{ kills }}</p></li>
+        <li>
+            {% csrf_token%}
+            <input class="btn btn-success leftbtn" type="button" value="开始游戏" id="start">
+            <input class="btn btn-danger rightbtn" type="button" value="退出" id="logout">
+        </li>
+    </ul>
+{% endblock context%}

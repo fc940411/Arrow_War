@@ -26,31 +26,44 @@
         }
         else{
             // 3.发起post ajax请求
+            $.ajax({
+                'url':'/register',
+                'type':'post',
+                'data':{'username':username, 'password':password1, 'nickname':nickname, 'email':email, csrfmiddlewaretoken: '{{ csrf_token }}',},
+                'datatype':'json',
+            }).done(function(data){
+                if(data.errmsg == 0){
+                    alert('注册成功！')
+                    window.location.href = '/index'
+                }else{
+                    alert(data.errmsg)
+                }
+            })
         }
-        
     })
 {% endblock script%}
 
 {% block menu_1 %}
-    <a href="index">登陆</a>
+    <a href="#">注册</a>
 {% endblock menu_1%}
 
 {% block context %}
-    <form class="input-group login_form" method="post" action='/login_check'>
+    <form class="input-group login_form" method="post">
+        {% csrf_token%}
         <ul class="nav nav-pills nav-stacked menu_ul">
-            <li role="presentation" class='active'>用户名:</li>
+            <li>用户名:</li>
             <li><input type="text" class="form-control" aria-describedby="sizing-addon2" id="username"></li>
-            <li role="presentation" class='active'>密码:</li>
+            <li>密码:</li>
             <li><input type="password" class="form-control" aria-describedby="sizing-addon2" id="password1"></li>
-            <li role="presentation" class='active'>确认密码:</li>
+            <li>确认密码:</li>
             <li><input type="password" class="form-control" aria-describedby="sizing-addon2" id="password2"></li>
-            <li role="presentation" class='active'>昵称:</li>
+            <li>昵称:</li>
             <li><input type="text" class="form-control" aria-describedby="sizing-addon2" id="nickname"></li>
-            <li role="presentation" class='active'>邮箱:</li>
+            <li>邮箱:</li>
             <li><input type="text" class="form-control" aria-describedby="sizing-addon2" id="email"></li>
             <li>
-                <input class="btn btn-info leftbtn" type="button" id="register" value="注册">
-                <a href="./index"><input class="btn btn-info rightbtn" type="button" value="返回"></a>
+                <input class="btn btn-primary leftbtn" type="button" id="register" value="注册">
+                <a href="/index"><input class="btn btn-primary rightbtn" type="button" value="返回"></a>
             </li>
         </ul>
     </from>

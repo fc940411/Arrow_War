@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% block title %}{{ nickname }}的首页{% endblock title%}
+{% block head %}War of The Arrows{% endblock head%}
 {% block script %}
     $('span').css({
         'font-size':'15px',
@@ -14,6 +15,11 @@
         'font-family':"SimHei"
     })
 
+    $('.li_btn').css({
+        'text-align':'center',
+        'height':'44px',
+    })
+
     $('#logout').click(function(){
         $.ajax({
             'url':'/personal',
@@ -22,16 +28,21 @@
             'datatype':'json',
         }).done(function(data){
             if(data.errmsg==0){
-                window.location.href = '/index'
+                window.location.href = '/'
             }
         })
     })
+
+    $('#start_pve').click(function(){
+        window.location.href = '/war/pve'
+    })
+
 
 
 {% endblock script%}
 
 {% block menu_1 %}
-    <a href="/index">{{ nickname }}的首页</a>
+    <a href="/index">{{ nickname }}</a>
 {% endblock menu_1%}
 
 {% block context %}
@@ -42,10 +53,13 @@
         <li><p align='center'>{{ score }}</p></li>
         <li><span class="label label-info span">最多击杀</span></li>
         <li><p align='center'>{{ kills }}</p></li>
-        <li>
+        <li class="li_btn">
+            <input class="btn btn-success leftbtn" type="button" value="PVE" id="start_pve">
+            <input class="btn btn-success rightbtn" type="button" value="PVP" id="start_pvp">
+        </li>
+        <li class="li_btn">
             {% csrf_token%}
-            <input class="btn btn-success leftbtn" type="button" value="开始游戏" id="start">
-            <input class="btn btn-danger rightbtn" type="button" value="退出" id="logout">
+            <input class="btn btn-danger midbtn" type="button" value="退出" id="logout">
         </li>
     </ul>
 {% endblock context%}

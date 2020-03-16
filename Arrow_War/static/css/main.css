@@ -1,7 +1,7 @@
 input {font-family: "Microsoft YaHei";}
 
 .background{
-    margin:50px auto;
+    margin:10px auto;
     font-size: 15px;
     background-color: white;
     font-family:"Microsoft YaHei";
@@ -25,14 +25,61 @@ input {font-family: "Microsoft YaHei";}
     margin:0px;
 }
 
+.title_war{
+    background: green;
+    border-radius: 5px 5px 0px 0px;
+    padding: 0px;
+    font-size: 10px;
+    font-family:"Microsoft YaHei";
+    color:white;
+    height: 40px;
+}
+
+.vision{
+    padding: 0px;
+    border: 0px;
+    background: black;
+    border-radius: 0px 0px 5px 5px;
+    height: 500px;
+    position: relative;
+    z-index: 1;
+    overflow: hidden;
+}
+
+.map{
+    margin:0px;
+    width: 1000px;
+    height:1000px;
+    background: grey;
+    border-radius: 50%;
+    opacity: 0.5;
+    position: absolute;
+    z-index: 2;
+    overflow: hidden;
+}
+
+.hero{
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    position: absolute;
+    z-index: 999;
+    color:white;
+}
+
+.enemy{
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    position: absolute;
+    color:red;
+}
+
+
 .login_form{
     margin: 10px auto;
 }
 
-
-/*.login_div{
-    background-color: #0099FF;
-}*/
 
 .menu_ul{
     padding:20px 0px;
@@ -55,4 +102,9 @@ input {font-family: "Microsoft YaHei";}
     margin-bottom: 10px;
     margin-right: 5px;
     float: right;
+}
+
+.midbtn{
+    width:60%;
+    margin:10px auto 10px;
 }

@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% block title %}首页{% endblock title%}
+{% block head %}War of The Arrows{% endblock head%}
 {% block script %}
     $('#login').click(function(){
         username = $('#username').val()
@@ -11,13 +12,13 @@
             alert('密码不能为空!')
         }
         $.ajax({
-            'url':'/index',
+            'url':'/',
             'type':'post',
             'data':{'username':username, 'password':password, csrfmiddlewaretoken: '{{ csrf_token }}',},
             'datatype':'json',
         }).done(function(data){
             if(data.errmsg==0){
-                window.location.href = '/personal'
+                window.location.href = '/users/personal'
             }else{
                 alert(data.errmsg)
             }
@@ -40,7 +41,7 @@
             <li><input type="password" class="form-control" aria-describedby="sizing-addon2" id="password"></li>
             <li>
                 <input class="btn btn-primary leftbtn" type="button" value="登录" id="login">
-                <a href="/register"><input class="btn btn-primary rightbtn" type="button" value="注册"></a>
+                <a href="/users/register"><input class="btn btn-primary rightbtn" type="button" value="注册"></a>
             </li>
         </ul>
     </from>

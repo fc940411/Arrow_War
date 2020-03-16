@@ -34,7 +34,7 @@
             }).done(function(data){
                 if(data.errmsg == 0){
                     alert('注册成功！')
-                    window.location.href = '/index'
+                    window.location.href = '/'
                 }else{
                     alert(data.errmsg)
                 }
@@ -63,7 +63,7 @@
             <li><input type="text" class="form-control" aria-describedby="sizing-addon2" id="email"></li>
             <li>
                 <input class="btn btn-primary leftbtn" type="button" id="register" value="注册">
-                <a href="/index"><input class="btn btn-primary rightbtn" type="button" value="返回"></a>
+                <a href="/"><input class="btn btn-primary rightbtn" type="button" value="返回"></a>
             </li>
         </ul>
     </from>

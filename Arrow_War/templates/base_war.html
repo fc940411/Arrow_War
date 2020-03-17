@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}{% endblock title%}</title>
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <script type="text/javascript" src="/static/js/jQuery-3.4.1.js"></script>
+    <script type="text/javascript" src="/static/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="/static/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/main.css">
+
+</head>
+<body class='background'>
+    <div class="row">
+        <div class="col-xs-10 col-xs-offset-1 col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3 col-lg-6 col-lg-offset-3 title_war">
+            {% csrf_token %}
+            <div class='war_head' id='score_menu'>{% block score_menu %}{% endblock score_menu%}</div>
+            <div class='war_head'><input class="btn btn-danger logout" type="button" value="退出" id="logout"></div>
+        </div>   
+    </div>
+
+    <div class="row">
+        <div class="col-xs-10 col-xs-offset-1 col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3 col-lg-6 col-lg-offset-3 vision">
+            <div class='map'>
+                {% block map %}{% endblock map%}
+            </div>
+        </div>   
+    </div>
+
+    <script type="text/javascript">
+        {% block script %}{% endblock script%}
+    </script>
+</body>
+</html>

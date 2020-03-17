@@ -20,6 +20,6 @@ class Score(BaseModel):
 
 
     parent = models.ForeignKey(Users,on_delete=models.CASCADE, verbose_name='用户')
-    times = models.IntegerField(verbose_name='生存时间', default=0)
-    scores = models.IntegerField(verbose_name='分数', default=0)
+    times = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='生存时间', default=0)
+    scores = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='分数', default=0)
     kills = models.IntegerField(verbose_name='击杀数', default=0)

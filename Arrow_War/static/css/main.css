@@ -35,10 +35,19 @@ input {font-family: "Microsoft YaHei";}
     height: 40px;
 }
 
+.war_head{
+    margin-left:30px;
+    font-size:15px;
+    height:40px;
+    line-height:40px;
+    display:inline;
+    text-align:center;
+}
+
 .vision{
     padding: 0px;
     border: 0px;
-    background: black;
+    background: red;
     border-radius: 0px 0px 5px 5px;
     height: 500px;
     position: relative;
@@ -50,9 +59,8 @@ input {font-family: "Microsoft YaHei";}
     margin:0px;
     width: 1000px;
     height:1000px;
-    background: grey;
+    background: black;
     border-radius: 50%;
-    opacity: 0.5;
     position: absolute;
     z-index: 2;
     overflow: hidden;
@@ -62,8 +70,9 @@ input {font-family: "Microsoft YaHei";}
     width: 14px;
     height: 14px;
     border-radius: 50%;
+    padding-left: 0.5px;
     position: absolute;
-    z-index: 999;
+    z-index: 3;
     color:white;
 }
 
@@ -71,6 +80,7 @@ input {font-family: "Microsoft YaHei";}
     width: 14px;
     height: 14px;
     border-radius: 50%;
+    padding-left: 0.5px;
     position: absolute;
     color:red;
 }

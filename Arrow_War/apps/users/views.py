@@ -3,9 +3,13 @@ from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import render, redirect, reverse  # 重定向函数,直接输入url 
 from django.http import HttpResponse, JsonResponse
 from django.template import loader, RequestContext
+from django.db.models import Q
+from django.conf import settings
+from django.core.mail import send_mail
 from apps.users.models import Users, Score
 from apps.war.models import Arrows
-from django.db.models import Q
+from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
+from itsdangerous import SignatureExpired
 import json
 import math
 import time
@@ -62,8 +66,23 @@ class Register(View):
             check=Users.objects.get(username=username)
         except:
             user = Users.objects.create_user(username=username, password=password, email=email, nickname=nickname)
-            user.is_active = True
+            user.is_active = False
             user.save()
+
+            # 创建加密实例
+            serializer = Serializer(settings.SECRET_KEY, 300)
+            info = {'user_id':user.id}
+            token = serializer.dumps(info)
+            token = token.decode()
+            # 发送激活邮件, 包含激活链接:http://127.0.0.1:8000/users/active/3
+            subject = 'Arrows_War'  # 欢迎信息
+            message = '' # 邮件正文
+            sender = settings.EMAIL_FROM
+            receiver = [email]
+            html_message = '<h1>%s,欢迎您注册Arrow_War</h1><br/><a href="http://127.0.0.1:8000/users/active/%s">请点击此处来激活您的账户</a>'%(username, token)
+            send_mail(subject, message, sender, receiver, html_message=html_message)
+
+
             Score.objects.create(parent=user)
             Arrows.objects.create(parent=user)
             return JsonResponse({'errmsg':0})
@@ -86,3 +105,24 @@ class Personal(View):
     def post(self, request):
         logout(request)
         return JsonResponse({'errmsg':0})
+
+
+class Register_Active(View):
+    '''注册激活类'''
+    def get(self, request, token):
+        serializer = Serializer(settings.SECRET_KEY, 300)
+        try:
+            info = serializer.loads(token)
+            # 获取待激活的用户名
+            user_id = info['user_id']
+
+            # 根据用户名获取用户信息
+            user = Users.objects.get(id=user_id)
+            user.is_active = True
+            user.save()
+
+            # 跳转到登陆页面
+            return redirect(reverse('index'))
+        except SignatureExpired as e:
+            # 激活链接已过期
+            return HttpResponse('激活链接已过期!')

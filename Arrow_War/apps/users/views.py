@@ -10,6 +10,8 @@ from apps.users.models import Users, Score
 from apps.war.models import Arrows
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from itsdangerous import SignatureExpired
+from celery_tasks.tasks import send_register_active_email
+from utils.mixin import LoginRequiredMixin
 import json
 import math
 import time
@@ -66,32 +68,18 @@ class Register(View):
             check=Users.objects.get(username=username)
         except:
             user = Users.objects.create_user(username=username, password=password, email=email, nickname=nickname)
-            user.is_active = False
-            user.save()
-
-            # 创建加密实例
-            serializer = Serializer(settings.SECRET_KEY, 300)
-            info = {'user_id':user.id}
-            token = serializer.dumps(info)
-            token = token.decode()
-            # 发送激活邮件, 包含激活链接:http://127.0.0.1:8000/users/active/3
-            subject = 'Arrows_War'  # 欢迎信息
-            message = '' # 邮件正文
-            sender = settings.EMAIL_FROM
-            receiver = [email]
-            html_message = '<h1>%s,欢迎您注册Arrow_War</h1><br/><a href="http://127.0.0.1:8000/users/active/%s">请点击此处来激活您的账户</a>'%(username, token)
-            send_mail(subject, message, sender, receiver, html_message=html_message)
-
-
             Score.objects.create(parent=user)
             Arrows.objects.create(parent=user)
+            user.is_active = False
+            user.save()
+            send_register_active_email.delay(user.id, user.email, user.username)
             return JsonResponse({'errmsg':0})
         else:
             # 4.返回应答
             return JsonResponse({'errmsg':'用户已存在'})
 
 
-class Personal(View):
+class Personal(LoginRequiredMixin, View):
     '''个人首页'''
     def get(self, request):
         '''显示个人首页'''

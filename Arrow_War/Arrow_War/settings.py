@@ -154,3 +154,7 @@ CACHES = {
 # 使用redis储存session
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 SESSION_CACHE_ALIAS = "default"
+
+# 登陆页面
+# 判断未登录时,跳转到登陆页面
+LOGIN_URL='index'

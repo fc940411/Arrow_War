@@ -1,0 +1,120 @@
+input {font-family: "Microsoft YaHei";}
+
+.background{
+    margin:10px auto;
+    font-size: 15px;
+    background-color: white;
+    font-family:"Microsoft YaHei";
+}
+
+.title{
+    background: green;
+    border-radius: 30px 5px;
+    padding: 10px;
+    font-size: 20px;
+    font-family:"Microsoft YaHei";
+    color:white;
+    height: 60px;
+    text-align: center;
+}
+
+.title_p{
+    text-align:center;
+    line-height: 40px;
+    height: 40px;
+    margin:0px;
+}
+
+.title_war{
+    background: green;
+    border-radius: 5px 5px 0px 0px;
+    padding: 0px;
+    font-size: 10px;
+    font-family:"Microsoft YaHei";
+    color:white;
+    height: 40px;
+}
+
+.war_head{
+    margin-left:30px;
+    font-size:15px;
+    height:40px;
+    line-height:40px;
+    display:inline;
+    text-align:center;
+}
+
+.vision{
+    padding: 0px;
+    border: 0px;
+    background: red;
+    border-radius: 0px 0px 5px 5px;
+    height: 500px;
+    position: relative;
+    z-index: 1;
+    overflow: hidden;
+}
+
+.map{
+    margin:0px;
+    width: 1000px;
+    height:1000px;
+    background: black;
+    border-radius: 50%;
+    position: absolute;
+    z-index: 2;
+    overflow: hidden;
+}
+
+.hero{
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    padding-left: 0.5px;
+    position: absolute;
+    z-index: 3;
+    color:white;
+}
+
+.enemy{
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    padding-left: 0.5px;
+    position: absolute;
+    color:red;
+}
+
+
+.login_form{
+    margin: 10px auto;
+}
+
+
+.menu_ul{
+    padding:20px 0px;
+}
+
+.menu_div{
+    padding:0px 10px;
+}
+
+
+.leftbtn{
+    margin-top:10px;
+    margin-bottom: 10px;
+    margin-left: 5px;
+    float: left;
+}
+
+.rightbtn{
+    margin-top:10px;
+    margin-bottom: 10px;
+    margin-right: 5px;
+    float: right;
+}
+
+.midbtn{
+    width:60%;
+    margin:10px auto 10px;
+}

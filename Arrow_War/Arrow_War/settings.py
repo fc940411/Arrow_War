@@ -25,7 +25,7 @@ SECRET_KEY = 'b)xy)7d!k2+g7w8+mmp3a+u&#sj3($aa#^$f3da0fndi4qd##d'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -127,6 +127,10 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
+# 把django使用的所有的静态文件收集到该目录下
+STATIC_ROOT = '/home/fc/Desktop/git_war/github/static'
+
+
 # 让Users使用Django的内置认证系统
 AUTH_USER_MODEL='users.Users'
 

@@ -70,9 +70,9 @@ class Register(View):
             user = Users.objects.create_user(username=username, password=password, email=email, nickname=nickname)
             Score.objects.create(parent=user)
             Arrows.objects.create(parent=user)
-            user.is_active = False
+            user.is_active = True
             user.save()
-            send_register_active_email.delay(user.id, user.email, user.username)
+            #send_register_active_email.delay(user.id, user.email, user.username)
             return JsonResponse({'errmsg':0})
         else:
             # 4.返回应答

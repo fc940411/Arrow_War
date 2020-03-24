@@ -56,10 +56,17 @@
         var turnleft = false
         var turnright = false
         $(window).keydown(function (event) {
+            console.log(String.fromCharCode(event.which))
             if(String.fromCharCode(event.which)=='A'){
                 turnleft = true
             }
             if(String.fromCharCode(event.which)=='D'){
+                turnright = true
+            }
+            if(String.fromCharCode(event.which)=='%'){
+                turnleft = true
+            }
+            if(String.fromCharCode(event.which)=="'"){
                 turnright = true
             }
         })
@@ -68,6 +75,12 @@
                 turnleft = false
             }
             if(String.fromCharCode(event.which)=='D'){
+                turnright = false
+            }
+            if(String.fromCharCode(event.which)=='%'){
+                turnleft = false
+            }
+            if(String.fromCharCode(event.which)=="'"){
                 turnright = false
             }
         })

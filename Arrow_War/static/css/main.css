@@ -5,6 +5,11 @@ input {font-family: "Microsoft YaHei";}
     font-size: 15px;
     background-color: white;
     font-family:"Microsoft YaHei";
+    overflow-x: hidden !important;
+}
+.background .row{
+    margin-left: 0px;
+    margin-right: 0px;
 }
 
 .title{

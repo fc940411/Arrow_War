@@ -114,3 +114,24 @@ class Register_Active(View):
         except SignatureExpired as e:
             # 激活链接已过期
             return HttpResponse('激活链接已过期!')
+
+
+class Ranking(View):
+    '''排行榜类'''
+    def post(self, request):
+        scores = Score.objects.order_by('-scores')
+        times = Score.objects.order_by('-times')
+        kills = Score.objects.order_by('-kills')
+        scores_names = [scores[0].parent.nickname, scores[1].parent.nickname, scores[2].parent.nickname]
+        scores_ranking = [scores[0].scores, scores[1].scores, scores[2].scores]
+        times_names = [times[0].parent.nickname, times[1].parent.nickname, times[2].parent.nickname]
+        times_ranking = [times[0].times, times[1].times, times[2].times]
+        kills_names = [kills[0].parent.nickname, kills[1].parent.nickname, kills[2].parent.nickname]
+        kills_ranking = [kills[0].kills, kills[1].kills, kills[2].kills]
+        return JsonResponse({'scores_name0':scores_names[0],'scores_name1':scores_names[1],'scores_name2':scores_names[2],
+                             'scores_ranking0':scores_ranking[0],'scores_ranking1':scores_ranking[1],'scores_ranking2':scores_ranking[2],
+                             'times_name0':times_names[0],'times_name1':times_names[1],'times_name2':times_names[2],
+                             'times_ranking0':times_ranking[0],'times_ranking1':times_ranking[1],'times_ranking2':times_ranking[2],
+                             'kills_name0':kills_names[0],'kills_name1':kills_names[1],'kills_name2':kills_names[2],
+                             'kills_ranking0':kills_ranking[0],'kills_ranking1':kills_ranking[1],'kills_ranking2':kills_ranking[2],
+            })

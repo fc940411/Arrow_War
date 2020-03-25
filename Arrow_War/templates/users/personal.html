@@ -7,7 +7,7 @@
     })
 
     $('.personal_ul').css({
-        'margin': '30px 10px'
+        'margin': '10px 10px'
     })
 
     $('li p').css({
@@ -45,7 +45,7 @@
 {% endblock script%}
 
 {% block menu_1 %}
-    <a href="">{{ nickname }}</a>
+    <a href="#">{{ nickname }}</a>
 {% endblock menu_1%}
 
 {% block context %}
@@ -61,7 +61,6 @@
             <input class="btn btn-success rightbtn" type="button" value="PVP" id="start_pvp">
         </li>
         <li class="li_btn">
-            {% csrf_token%}
             <input class="btn btn-danger midbtn" type="button" value="退出" id="logout">
         </li>
     </ul>

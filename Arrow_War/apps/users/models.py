@@ -9,7 +9,8 @@ class Users(AbstractUser, BaseModel):
         verbose_name='用户信息'
         verbose_name_plural = '用户信息'
 
-    nickname = models.CharField(verbose_name='昵称', max_length=30)
+    nickname = models.CharField(verbose_name='昵称', max_length=16)
+    slogan = models.CharField(verbose_name='标语', max_length=30, default='')
 
 
 class Score(BaseModel):

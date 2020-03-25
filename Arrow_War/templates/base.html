@@ -65,16 +65,16 @@
             <div class="div_right" id='div4'>
                 <ul class="nav nav-pills nav-stacked personal_ul">
                     <li><span class="label label-info span">PVE</span></li>
-                    <li><p align='center'>飞机自动向前飞行，按'A'使飞机向左转弯，按'D'使飞机向右转弯，撞击npc或红墙则坠毁</p></li>
+                    <li><div>飞机自动向前飞行，按'A'使飞机向左转弯，按'D'使飞机向右转弯，撞击npc或红墙则坠毁</div></li>
                     <li><span class="label label-info span">PVP</span></li>
-                    <li><p align='center'>敬请期待~</p></li>
+                    <li><div align='center'>敬请期待~</div></li>
                 </ul>
             </div>
             <div class="div_right" id='div5'>
                 <ul class="nav nav-pills nav-stacked personal_ul">
                     <li><span class="label label-info span">20200325更新</span></li>
-                    <li><p align='center'>1.更新排行榜、玩法和公告栏</p></li>
-                    <li><p align='center'>2.pve模式增加手机适配</p></li>
+                    <li><div align='center'>1.更新排行榜、玩法和公告栏</div></li>
+                    <li><div align='center'>2.pve模式增加手机适配</div></li>
                 </ul>
             </div>
         </div>
@@ -93,7 +93,9 @@
                 'height':'300px',
                 'position':'absolute',
                 'background-color':'white',
+                'overflow':'hidden',
             })
+            
             $('#div0').css({
                 'z-index':6,
             })
@@ -174,9 +176,32 @@
 
             })
 
+            // $(window).bind('orientationchange',function(event){
+            //     window.location.reload()
+            // })
+            // function div_change(){
+            //     $('.div_right').css({
+            //         'width':$('#right_div').innerWidth(),
+            //     })
+            //     console.log($('#right_div').innerWidth())
+            // }
+            var change_phone = window.matchMedia('(orientation: portrait)');
+            function onMatchMediaChange(change_phone){
+                if(change_phone.matches){
+                    $('.div_right').css({
+                        'width':$('#right_div').innerWidth(),
+                    })
+                }else{
+                    $('.div_right').css({
+                        'width':$('#right_div').innerWidth(),
+                    })
+                }
+            }
+            onMatchMediaChange(change_phone);
+            change_phone.addListener(onMatchMediaChange)
+
             {% block script %}{% endblock script%}
         })
-        
     </script>
 </body>
 </html>

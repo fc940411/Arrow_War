@@ -9,224 +9,254 @@
     <div class='glyphicon glyphicon-chevron-up hero'></div>
 {% endblock map%}
 {% block script %}
-    $(function(){
-        var score = 0
-        var living_time = 0
-        var visoin_x = $('.vision').width()
-        var speed = 8
-        var enemy_speed = 3
-        var angle = 0
-        var x_hero = 500
-        var y_hero = 500
-        var x_map = -(500-visoin_x/2)
-        var y_map = -250
-        var enemy_num = 3
+    var score = 0
+    var living_time = 0
+    var visoin_x = $('.vision').width()
+    var visoin_y = $('.vision').height()
+    var speed = 8
+    var enemy_speed = 3
+    var angle = 0
+    var x_hero = 500
+    var y_hero = 500
+    var x_map = -(500-visoin_x/2)
+    var y_map = -(500-visoin_y/2)
+    var enemy_num = 3
 
-        $('.row').css({
-            'margin':0,
+    $('.row').css({
+        'margin':0,
+    })
+
+    $('.logout').css({
+        'margin-top':'3px',
+        'margin-right':'30px',
+        'float':'right',
+    })
+
+    // 初始化位置
+    $('.hero').css({
+        'left': (x_hero-7)+'px',
+        'top': (y_hero-7)+'px',
+    })
+    $('.map').css({
+        'left': x_map+'px',
+        'top': y_map+'px',
+    })
+    // 发送数据 
+    function ajax(){
+        $.ajax({
+            'url':'/war/pve',
+            'type':'post',
+            'datatype':'json',
+            'data':{'score':score, 'time':living_time, csrfmiddlewaretoken: '{{ csrf_token }}',},
+        }).done(function(data){
+            if(data.res==0){
+                window.location.href = '/users/personal'
+                alert('您已坠毁!')
+            }
         })
+    }
 
-        $('.logout').css({
-            'margin-top':'3px',
-            'margin-right':'30px',
-            'float':'right',
-        })
+    // 箭头旋转方向
+    var turnleft = false
+    var turnright = false
+    $(window).keydown(function (event) {
+        console.log(String.fromCharCode(event.which))
+        if(String.fromCharCode(event.which)=='A'){
+            turnleft = true
+        }
+        if(String.fromCharCode(event.which)=='D'){
+            turnright = true
+        }
+        if(String.fromCharCode(event.which)=='%'){
+            turnleft = true
+        }
+        if(String.fromCharCode(event.which)=="'"){
+            turnright = true
+        }
+    })
+    $(window).keyup(function (event) {
+        if(String.fromCharCode(event.which)=='A'){
+            turnleft = false
+        }
+        if(String.fromCharCode(event.which)=='D'){
+            turnright = false
+        }
+        if(String.fromCharCode(event.which)=='%'){
+            turnleft = false
+        }
+        if(String.fromCharCode(event.which)=="'"){
+            turnright = false
+        }
+    })
+    $(".vision").on("touchstart", function(e) {
+        // 判断默认行为是否可以被禁用
+        if (e.cancelable) {
+            // 判断默认行为是否已经被禁用
+            if (!e.defaultPrevented) {
+                e.preventDefault();
+            }
+        }   
+        startX = e.originalEvent.changedTouches[0].pageX
+    }) 
+    $(".vision").on("touchmove", function(e) {           
+        // 判断默认行为是否可以被禁用
+        if (e.cancelable) {
+            // 判断默认行为是否已经被禁用
+            if (!e.defaultPrevented) {
+                e.preventDefault()
+            }
+        }               
+        moveEndX = e.originalEvent.changedTouches[0].pageX
+        X = moveEndX - startX
+        startX = moveEndX
+        if ( X < 0 ) {
+            angle = angle + X/3
+            if(angle<-180){
+                angle = angle + 360
+            }
+        }else if ( X > 0 ) {
+            angle = angle + X/3
+            if(angle>180){
+                angle = angle - 360
+            }
+        }
+    })
 
-        // 初始化位置
+
+
+    function arrow_turn(){
+        if(turnleft){
+            angle = angle - 6
+            if(angle<-180){
+                angle = angle + 360
+            }
+        }else if(turnright){
+            angle = angle + 6
+            if(angle>180){
+                angle = angle - 360
+            }
+        }
+    }
+    setInterval(arrow_turn,60)
+
+        
+
+    // 箭头位置计算
+    function move(){
+        x = speed * Math.sin(Math.PI*angle/180)
+        y = speed * Math.cos(Math.PI*angle/180)
+        x_hero=x_hero+x
+        y_hero=y_hero-y
+        var position_x = x_hero-7
+        var position_y = y_hero-7
+        x_map=x_map-x
+        y_map=y_map+y
         $('.hero').css({
-            'left': (x_hero-7)+'px',
-            'top': (y_hero-7)+'px',
+            'left': position_x+'px',
+            'top': position_y+'px',
         })
         $('.map').css({
             'left': x_map+'px',
             'top': y_map+'px',
         })
-        // 发送数据 
-        function ajax(){
-            $.ajax({
-                'url':'/war/pve',
-                'type':'post',
-                'datatype':'json',
-                'data':{'score':score, 'time':living_time, csrfmiddlewaretoken: '{{ csrf_token }}',},
-            }).done(function(data){
-                if(data.res==0){
-                    window.location.href = '/users/personal'
-                    alert('您已坠毁!')
-                }
-            })
-        }
-
-        // 箭头旋转方向
-        var turnleft = false
-        var turnright = false
-        $(window).keydown(function (event) {
-            console.log(String.fromCharCode(event.which))
-            if(String.fromCharCode(event.which)=='A'){
-                turnleft = true
-            }
-            if(String.fromCharCode(event.which)=='D'){
-                turnright = true
-            }
-            if(String.fromCharCode(event.which)=='%'){
-                turnleft = true
-            }
-            if(String.fromCharCode(event.which)=="'"){
-                turnright = true
-            }
+        $('.hero').css({
+            'transform-origin':'50% 50%',
+            'transform':'rotate('+angle+'deg)',
         })
-        $(window).keyup(function (event) {
-            if(String.fromCharCode(event.which)=='A'){
-                turnleft = false
-            }
-            if(String.fromCharCode(event.which)=='D'){
-                turnright = false
-            }
-            if(String.fromCharCode(event.which)=='%'){
-                turnleft = false
-            }
-            if(String.fromCharCode(event.which)=="'"){
-                turnright = false
-            }
-        })
-
-        function arrow_turn(){
-            if(turnleft){
-                angle = angle - 6
-                if(angle<-180){
-                    angle = angle + 360
-                }
-            }else if(turnright){
-                angle = angle + 6
-                if(angle>180){
-                    angle = angle - 360
-                }
-            }
+        score = score + 0.06
+        living_time = living_time + 0.06
+        $('#score_menu').text('存活时间:'+living_time.toFixed(2)+' 秒')
+        if(Math.pow((x_hero-500),2)+Math.pow((y_hero-500),2)>Math.pow(500,2)){
+            ajax()
         }
-        setInterval(arrow_turn,60)
+    }
+    setInterval(move,60)
 
-            
+    // 生成敌人
+    function enemy_create(){
+        var random = Math.random()*1000
+        var enemy_x = 0
+        var enemy_y = 0
+        if(random>=0&random<250){
+            enemy_x = 4*random
+            enemy_y = 0
+            enemy_angle = 180
+        }else if(random>=250&random<500){
+            enemy_x = 4*(random-250)
+            enemy_y = 1000
+            enemy_angle = 0
+        }else if(random>=500&random<750){
+            enemy_x = 0
+            enemy_y = 4*(random-500)
+            enemy_angle = 90
+        }else if(random>=750&random<=1000){
+            enemy_x = 1000
+            enemy_y = 4*(random-750)
+            enemy_angle = -90
+        }
+        enemy_num = enemy_num + 1
+        $('.map').append("<div class='glyphicon glyphicon-chevron-up enemy' id='enemy"+enemy_num+"'></div>")
+        $('#enemy'+enemy_num).css({
+            'left':(enemy_x-7)+'px',
+            'top':(enemy_y-7)+'px',
+            'transform-origin':'50% 50%',
+            'transform':'rotate('+enemy_angle+'deg)',
+            'z-index':enemy_num,
+        }) 
+        $('#enemy'+enemy_num).data({
+            'angle':enemy_angle
+        }) 
+    }
+    setInterval(enemy_create,200)
 
-        // 箭头位置计算
-        function move(){
-            x = speed * Math.sin(Math.PI*angle/180)
-            y = speed * Math.cos(Math.PI*angle/180)
-            x_hero=x_hero+x
-            y_hero=y_hero-y
-            var position_x = x_hero-7
-            var position_y = y_hero-7
-            x_map=x_map-x
-            y_map=y_map+y
-            $('.hero').css({
-                'left': position_x+'px',
-                'top': position_y+'px',
-            })
-            $('.map').css({
-                'left': x_map+'px',
-                'top': y_map+'px',
-            })
-            $('.hero').css({
-                'transform-origin':'50% 50%',
-                'transform':'rotate('+angle+'deg)',
-            })
-            score = score + 0.06
-            living_time = living_time + 0.06
-            $('#score_menu').text('存活时间:'+living_time.toFixed(2)+' 秒')
-            if(Math.pow((x_hero-500),2)+Math.pow((y_hero-500),2)>Math.pow(500,2)){
+    // 敌人移动计算
+    function enemy_move(){
+        $('.enemy').each(function(){
+            var enemy_x = $(this).position().left
+            var enemy_y = $(this).position().top
+            var enemy_angle = $(this).data('angle')
+            var differ_angle = 180*(Math.atan((-y_hero+enemy_y)/(x_hero-enemy_x)))/Math.PI
+            if(Math.pow((x_hero-(enemy_x+7)),2)+Math.pow((y_hero-(enemy_y+7)),2)<=10*10){
                 ajax()
             }
-        }
-        setInterval(move,60)
-
-        // 生成敌人
-        function enemy_create(){
-            var random = Math.random()*1000
-            var enemy_x = 0
-            var enemy_y = 0
-            if(random>=0&random<250){
-                enemy_x = 4*random
-                enemy_y = 0
-                enemy_angle = 180
-            }else if(random>=250&random<500){
-                enemy_x = 4*(random-250)
-                enemy_y = 1000
-                enemy_angle = 0
-            }else if(random>=500&random<750){
-                enemy_x = 0
-                enemy_y = 4*(random-500)
-                enemy_angle = 90
-            }else if(random>=750&random<=1000){
-                enemy_x = 1000
-                enemy_y = 4*(random-750)
-                enemy_angle = -90
+            if(x_hero < enemy_x){
+                differ_angle = -(90+differ_angle)
+            }else if(x_hero>enemy_x){
+                differ_angle = 90-differ_angle
+            }else if(x_hero=enemy_x){
+                if(y_hero>enemy_y){
+                    differ_angle = 180
+                }else if(y_hero < enemy_y){
+                    differ_angle = 0
+                }
             }
-            enemy_num = enemy_num + 1
-            $('.map').append("<div class='glyphicon glyphicon-chevron-up enemy' id='enemy"+enemy_num+"'></div>")
-            $('#enemy'+enemy_num).css({
-                'left':(enemy_x-7)+'px',
-                'top':(enemy_y-7)+'px',
+
+            if(enemy_angle>differ_angle&enemy_angle<=differ_angle+180){
+                enemy_angle = enemy_angle - 3
+            }else if(enemy_angle < differ_angle&enemy_angle >= differ_angle-180){
+                enemy_angle = enemy_angle + 3
+            }
+
+            if(enemy_angle<-180){
+                enemy_angle = enemy_angle + 360
+            }else if(angle>180){
+                enemy_angle = enemy_angle - 360
+            }
+            $(this).data({
+                'angle':enemy_angle,
+            })
+            var x = enemy_x + enemy_speed * Math.sin(Math.PI*enemy_angle/180)
+            var y = enemy_y - enemy_speed * Math.cos(Math.PI*enemy_angle/180)
+            if(x>1050|y>1050|x<-50|y<-50){
+                $(this).remove()
+            }
+            $(this).css({
+                'left':x+'px',
+                'top':y+'px',
                 'transform-origin':'50% 50%',
                 'transform':'rotate('+enemy_angle+'deg)',
-                'z-index':enemy_num,
-            }) 
-            $('#enemy'+enemy_num).data({
-                'angle':enemy_angle
-            }) 
-        }
-        setInterval(enemy_create,200)
-
-        // 敌人移动计算
-        function enemy_move(){
-            $('.enemy').each(function(){
-                var enemy_x = $(this).position().left
-                var enemy_y = $(this).position().top
-                var enemy_angle = $(this).data('angle')
-                var differ_angle = 180*(Math.atan((-y_hero+enemy_y)/(x_hero-enemy_x)))/Math.PI
-                if(Math.pow((x_hero-(enemy_x+7)),2)+Math.pow((y_hero-(enemy_y+7)),2)<=10*10){
-                    ajax()
-                }
-                if(x_hero < enemy_x){
-                    differ_angle = -(90+differ_angle)
-                }else if(x_hero>enemy_x){
-                    differ_angle = 90-differ_angle
-                }else if(x_hero=enemy_x){
-                    if(y_hero>enemy_y){
-                        differ_angle = 180
-                    }else if(y_hero < enemy_y){
-                        differ_angle = 0
-                    }
-                }
-
-                if(enemy_angle>differ_angle&enemy_angle<=differ_angle+180){
-                    enemy_angle = enemy_angle - 3
-                }else if(enemy_angle < differ_angle&enemy_angle >= differ_angle-180){
-                    enemy_angle = enemy_angle + 3
-                }
-
-                if(enemy_angle<-180){
-                    enemy_angle = enemy_angle + 360
-                }else if(angle>180){
-                    enemy_angle = enemy_angle - 360
-                }
-                $(this).data({
-                    'angle':enemy_angle,
-                })
-                var x = enemy_x + enemy_speed * Math.sin(Math.PI*enemy_angle/180)
-                var y = enemy_y - enemy_speed * Math.cos(Math.PI*enemy_angle/180)
-                if(x>1050|y>1050|x<-50|y<-50){
-                    $(this).remove()
-                }
-                $(this).css({
-                    'left':x+'px',
-                    'top':y+'px',
-                    'transform-origin':'50% 50%',
-                    'transform':'rotate('+enemy_angle+'deg)',
-                })
             })
-        }
-        setInterval(enemy_move,60)
-    })
-    
-    $('#logout').click(function(){
-        window.location.href = '/users/personal'
-    })
+        })
+    }
+    setInterval(enemy_move,60)
 {% endblock script%}

@@ -26,12 +26,11 @@
 
     <script type="text/javascript">
         $(function(){
-           $('.logout').css({
+            $('.logout').css({
                 'margin-top':'3px',
                 'margin-right':'30px',
                 'float':'right',
             }) 
-
             $(".vision").on("touchstart", function(e) {
                 // 判断默认行为是否可以被禁用
                 if (e.cancelable) {
@@ -42,40 +41,35 @@
                 }   
                 startX = e.originalEvent.changedTouches[0].pageX,
                 startY = e.originalEvent.changedTouches[0].pageY;
-            });
-           $(".vision").on("touchend", function(e) {           
-                // 判断默认行为是否可以被禁用
-                if (e.cancelable) {
-                    // 判断默认行为是否已经被禁用
-                    if (!e.defaultPrevented) {
-                        e.preventDefault();
+            });  
+            // function touch(){
+                $(".vision").on("touchmove", function(e) {           
+                    // 判断默认行为是否可以被禁用
+                    if (e.cancelable) {
+                        // 判断默认行为是否已经被禁用
+                        if (!e.defaultPrevented) {
+                            e.preventDefault();
+                        }
+                    }               
+                    moveEndX = e.originalEvent.changedTouches[0].pageX,
+                    moveEndY = e.originalEvent.changedTouches[0].pageY,
+                    X = moveEndX - startX,
+                    Y = moveEndY - startY;
+                    if ( X < 0 ) {
+                        console.log('左滑');                
+                    }else if ( X > 0 ) {
+                        console.log('右滑');    
+                    }else if ( Y > 0) {
+                        console.log('下滑');    
+                    }else if ( Y < 0 ) {
+                        console.log('上滑');    
+                    }else{
+                        console.log('单击');    
                     }
-                }               
-                moveEndX = e.originalEvent.changedTouches[0].pageX,
-                moveEndY = e.originalEvent.changedTouches[0].pageY,
-                X = moveEndX - startX,
-                Y = moveEndY - startY;
-                //左滑
-                if ( X < 0 ) {
-                    console.log('左滑');                
-                }
-                //右滑
-                else if ( X > 0 ) {
-                    console.log('右滑');    
-                }
-                //下滑
-                else if ( Y > 0) {
-                    console.log('下滑');    
-                }
-                //上滑
-                else if ( Y < 0 ) {
-                    console.log('上滑');    
-                }
-                //单击
-                else{
-                    console.log('单击');    
-                }
-            });
+                    console.log(X)
+                });
+            // }
+            // setInterval(touch,60) 
         })
         
         

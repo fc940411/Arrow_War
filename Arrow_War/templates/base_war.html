@@ -28,7 +28,21 @@
     </div>
 
     <script type="text/javascript">
-        {% block script %}{% endblock script%}
+        $(function(){
+            var window_height = $(window).height()
+            if(window_height<$('.vision').height()){
+                $('.vision').css({
+                    'height':window_height-60,
+                })
+            }
+
+
+            {% block script %}{% endblock script%}
+        })
+    
+        $('#logout').click(function(){
+            window.location.href = '/users/personal'
+        })
     </script>
 </body>
 </html>

@@ -36,13 +36,13 @@
                 })
             }
 
-
             {% block script %}{% endblock script%}
+            $('#logout').click(function(){
+                window.location.href = '/users/personal'
+            })
         })
     
-        $('#logout').click(function(){
-            window.location.href = '/users/personal'
-        })
+        
     </script>
 </body>
 </html>

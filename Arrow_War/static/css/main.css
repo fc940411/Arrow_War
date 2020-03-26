@@ -81,6 +81,25 @@ input {font-family: "Microsoft YaHei";}
     color:white;
 }
 
+.other_arrows{
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    padding-left: 0.5px;
+    position: absolute;
+    z-index: 3;
+    color:white;
+}
+
+
+.bullet{
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    position: absolute;
+    background-color:gold;
+}
+
 .enemy{
     width: 14px;
     height: 14px;

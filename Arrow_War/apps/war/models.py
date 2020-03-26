@@ -29,6 +29,6 @@ class Bullets(BaseModel):
     parent = models.ForeignKey(Users,on_delete=models.CASCADE, verbose_name='用户')
     left = models.FloatField(verbose_name='位置x', default=0)
     top = models.FloatField(verbose_name='位置y', default=0)
-    speed = models.FloatField(verbose_name='速度', default=0)
+    speed = models.FloatField(verbose_name='速度', default=16)
     angle = models.FloatField(verbose_name='角度', default=0)
-    life = models.BooleanField(verbose_name='是否生存', default=0)
+    life = models.BooleanField(verbose_name='是否生存', default=True)

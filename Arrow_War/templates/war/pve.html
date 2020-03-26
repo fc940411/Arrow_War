@@ -14,7 +14,7 @@
     var visoin_x = $('.vision').width()
     var visoin_y = $('.vision').height()
     var speed = 8
-    var enemy_speed = 3
+    var enemy_speed = 5
     var angle = 0
     var x_hero = 500
     var y_hero = 500
@@ -73,6 +73,12 @@
         if(String.fromCharCode(event.which)=="'"){
             turnright = true
         }
+        if(String.fromCharCode(event.which)=='W'){
+            speed = 16
+        }
+        if(String.fromCharCode(event.which)=='&'){
+            speed = 16
+        }
     })
     $(window).keyup(function (event) {
         if(String.fromCharCode(event.which)=='A'){
@@ -86,6 +92,12 @@
         }
         if(String.fromCharCode(event.which)=="'"){
             turnright = false
+        }
+        if(String.fromCharCode(event.which)=='W'){
+            speed = 8
+        }
+        if(String.fromCharCode(event.which)=='&'){
+            speed = 8
         }
     })
     $(".vision").on("touchstart", function(e) {
@@ -136,6 +148,7 @@
                 angle = angle - 360
             }
         }
+        console.log(angle)
     }
     setInterval(arrow_turn,60)
 
@@ -215,27 +228,56 @@
             var enemy_x = $(this).position().left
             var enemy_y = $(this).position().top
             var enemy_angle = $(this).data('angle')
-            var differ_angle = 180*(Math.atan((-y_hero+enemy_y)/(x_hero-enemy_x)))/Math.PI
+            <!-- var differ_angle = 180*(Math.atan((-y_hero+enemy_y)/(x_hero-enemy_x)))/Math.PI -->
             if(Math.pow((x_hero-(enemy_x+7)),2)+Math.pow((y_hero-(enemy_y+7)),2)<=10*10){
                 ajax()
             }
-            if(x_hero < enemy_x){
-                differ_angle = -(90+differ_angle)
-            }else if(x_hero>enemy_x){
-                differ_angle = 90-differ_angle
-            }else if(x_hero=enemy_x){
-                if(y_hero>enemy_y){
-                    differ_angle = 180
-                }else if(y_hero < enemy_y){
-                    differ_angle = 0
+
+            //if(x_hero < enemy_x){
+            //    differ_angle = -(90+differ_angle)
+            //}else if(x_hero>enemy_x){
+            //    differ_angle = 90-differ_angle
+            //}else if(x_hero=enemy_x){
+            //    if(y_hero>enemy_y){
+            //        differ_angle = 180
+            //    }else if(y_hero < enemy_y){
+            //        differ_angle = 0
+            //    }
+            //}
+
+            //if(enemy_angle>differ_angle&enemy_angle<=differ_angle+180){
+            //    enemy_angle = enemy_angle - 3
+            //}else if(enemy_angle < differ_angle&enemy_angle >= differ_angle-180){
+            //    enemy_angle = enemy_angle + 3
+            //}
+
+            if(x_hero <= enemy_x&y_hero <= enemy_y){
+                if(enemy_angle <= 135 & enemy_angle >= -45){
+                    enemy_angle = enemy_angle - 4
+                }else if(enemy_angle > 135 | enemy_angle < -45){
+                    enemy_angle = enemy_angle + 4
+                }
+            }else if(x_hero > enemy_x&y_hero <= enemy_y){
+                if(enemy_angle >= 45 | enemy_angle >= -135){
+                    enemy_angle = enemy_angle - 4
+                }else if(enemy_angle < 45 & enemy_angle > -135){
+                    enemy_angle = enemy_angle + 4
+                }
+            }else if(x_hero > enemy_x&y_hero > enemy_y){
+                if(enemy_angle <= 135 & enemy_angle >= -45){
+                    enemy_angle = enemy_angle + 4
+                }else if(enemy_angle > 135 | enemy_angle < -45){
+                    enemy_angle = enemy_angle - 4
+                }
+            }else if(x_hero <= enemy_x&y_hero > enemy_y){
+                if(enemy_angle <= 45 & enemy_angle >= -135){
+                    enemy_angle = enemy_angle - 4
+                }else if(enemy_angle > 45 | enemy_angle < -135){
+                    enemy_angle = enemy_angle + 4
                 }
             }
 
-            if(enemy_angle>differ_angle&enemy_angle<=differ_angle+180){
-                enemy_angle = enemy_angle - 3
-            }else if(enemy_angle < differ_angle&enemy_angle >= differ_angle-180){
-                enemy_angle = enemy_angle + 3
-            }
+
 
             if(enemy_angle<-180){
                 enemy_angle = enemy_angle + 360

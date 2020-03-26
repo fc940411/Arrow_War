@@ -10,7 +10,7 @@ class Users(AbstractUser, BaseModel):
         verbose_name_plural = '用户信息'
 
     nickname = models.CharField(verbose_name='昵称', max_length=16)
-    slogan = models.CharField(verbose_name='标语', max_length=30, default='')
+    slogan = models.CharField(verbose_name='标语', max_length=30, default='1')
 
 
 class Score(BaseModel):
@@ -24,3 +24,13 @@ class Score(BaseModel):
     times = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='生存时间', default=0)
     scores = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='分数', default=0)
     kills = models.IntegerField(verbose_name='击杀数', default=0)
+
+
+class GameControl(models.Model):
+    '''游戏控制类'''
+    class Meta:
+        verbose_name='游戏控制'
+        verbose_name_plural = '游戏控制'
+
+    # 位置计算函数
+    position_calc = models.BooleanField(verbose_name='位置计算状态', default=False)

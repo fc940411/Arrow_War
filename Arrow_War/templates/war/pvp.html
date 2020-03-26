@@ -1,81 +1,172 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>pvp</title>
-    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0,user-scalable=no" />
-    <script type="text/javascript" src="/static/js/jQuery-3.4.1.js"></script>
-    <script type="text/javascript" src="/static/js/bootstrap.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="/static/css/bootstrap.min.css">
-    <link rel="stylesheet" type="text/css" href="/static/css/main.css">
+{% extends 'base_war.html' %}
+{% block title %}
+    PVP
+{% endblock title%}
+{% block score_menu %}
+    击杀数:0
+{% endblock score_menu%}
+{% block map %}
+    <div class='glyphicon glyphicon-chevron-up hero'></div>
+{% endblock map%}
+{% block script %}
+    var visoin_x = $('.vision').width()
+    var visoin_y = $('.vision').height()
+    $('.map').css({
+        'left': (-500+visoin_x/2)+'px',
+        'top': (-500+visoin_y/2)+'px',
+    })
+    $('.hero').css({
+        'left':'493px',
+        'top':'493px',
+    })
+    $('.row').css({
+        'margin':0,
+    })
 
-</head>
-<body class='background'>
-    <div class="row">
-        <div class="col-xs-10 col-xs-offset-1 col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3 col-lg-6 col-lg-offset-3 title_war">
-            <div class='war_head' id='score_menu'>敬请期待！</div>
-            <div class='war_head'><input class="btn btn-danger logout" type="button" value="退出" id="logout"></div>
-        </div>   
-    </div>
+    $('.logout').css({
+        'margin-top':'3px',
+        'margin-right':'30px',
+        'float':'right',
+    })
 
-    <div class="row">
-        <div class="col-xs-10 col-xs-offset-1 col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3 col-lg-6 col-lg-offset-3 vision">
-        </div>   
-    </div>
 
-    <script type="text/javascript">
-        $(function(){
-            $('.logout').css({
-                'margin-top':'3px',
-                'margin-right':'30px',
-                'float':'right',
-            }) 
-            $(".vision").on("touchstart", function(e) {
-                // 判断默认行为是否可以被禁用
-                if (e.cancelable) {
-                    // 判断默认行为是否已经被禁用
-                    if (!e.defaultPrevented) {
-                        e.preventDefault();
-                    }
-                }   
-                startX = e.originalEvent.changedTouches[0].pageX,
-                startY = e.originalEvent.changedTouches[0].pageY;
-            });  
-            // function touch(){
-                $(".vision").on("touchmove", function(e) {           
-                    // 判断默认行为是否可以被禁用
-                    if (e.cancelable) {
-                        // 判断默认行为是否已经被禁用
-                        if (!e.defaultPrevented) {
-                            e.preventDefault();
-                        }
-                    }               
-                    moveEndX = e.originalEvent.changedTouches[0].pageX,
-                    moveEndY = e.originalEvent.changedTouches[0].pageY,
-                    X = moveEndX - startX,
-                    Y = moveEndY - startY;
-                    if ( X < 0 ) {
-                        console.log('左滑');                
-                    }else if ( X > 0 ) {
-                        console.log('右滑');    
-                    }else if ( Y > 0) {
-                        console.log('下滑');    
-                    }else if ( Y < 0 ) {
-                        console.log('上滑');    
-                    }else{
-                        console.log('单击');    
-                    }
-                    console.log(X)
-                });
-            // }
-            // setInterval(touch,60) 
+    // 箭头控制
+    var direction = ''
+    var upspeed = ''
+    function control_ajax(direction, upspeed){
+        $.ajax({
+            'url':'/war/pvp',
+            'type':'post',
+            'datatype':'json',
+            'data':{'direction':direction, 'upspeed':upspeed, csrfmiddlewaretoken: '{{ csrf_token }}',},
         })
+    }
+    $(window).keydown(function (event) {
+        var key_down = String.fromCharCode(event.which)
+        if(key_down == 'A' | key_down == '%'){
+            direction = 'left'
+        }
+        if(key_down == 'D' | key_down == "'"){
+            direction = 'right'
+        }
+        if(key_down == 'W' | key_down == '&'){
+            upspeed = 'up'
+        }
+        if(key_down == 'J' | key_down == ' '){
+            $.ajax({
+                'url':'/war/pvp_createbullets',
+                'type':'post',
+                'datatype':'json',
+                'data':{csrfmiddlewaretoken: '{{ csrf_token }}',},
+            })
+        }
+    })
+    $(window).keyup(function (event) {
+        var key_down = String.fromCharCode(event.which)
+        if(key_down == 'A' | key_down == '%'){
+            if(direction == 'left'){
+                direction = ''
+            }
+        }
+        if(key_down == 'D' | key_down == "'"){
+            if(direction == 'right'){
+                direction = ''
+            }
+        }
+        if(key_down == 'W' | key_down == '&'){
+            upspeed = ''
+        }
+    })
+    $(".vision").on("touchstart", function(e) {
+        // 判断默认行为是否可以被禁用
+        if (e.cancelable) {
+            // 判断默认行为是否已经被禁用
+            if (!e.defaultPrevented) {
+                e.preventDefault();
+            }
+        }   
+        startX = e.originalEvent.changedTouches[0].pageX
+    }) 
+    $(".vision").on("touchmove", function(e) {           
+        // 判断默认行为是否可以被禁用
+        if (e.cancelable) {
+            // 判断默认行为是否已经被禁用
+            if (!e.defaultPrevented) {
+                e.preventDefault()
+            }
+        }               
+        moveEndX = e.originalEvent.changedTouches[0].pageX
+        X = moveEndX - startX
+        startX = moveEndX
+        if ( X < 0 ) {
+            direction = 'left'
+        }else if ( X > 0 ) {
+            direction = 'right'
+        }else if ( X = 0 ) {
+            direction = ''
+        }
+    })
+
+
+    function create_arrows(num, left, top, angle){
+        $('.map').append("<div class = 'glyphicon glyphicon-chevron-up other_arrows' id=arrow"+num+"></div>")
+        $('#arrow'+num).css({
+            'z-index':100+num,
+            'left':(left-7)+'px',
+            'top':(top-7)+'px',
+            'transform':'rotate('+angle+'deg)',
+        }) 
+    }
+
+    function create_bullets(num, left, top, angle){
+        $('.map').append("<div class = 'bullet' id=bullet"+num+"></div>")
+        $('#bullet'+num).css({
+            'left':(left-2.5)+'px',
+            'top':(top-2.5)+'px',
+            'transform':'rotate('+angle+'deg)',
+            'z-index':500+num,
+        }) 
+    }
+
+    function move_ajax(){
         
-        
-        $('#logout').click(function(){
-            window.location.href = '/users/personal'
+        $.ajax({
+            'url':'/war/pvp',
+            'type':'post',
+            'datatype':'json',
+            'data':{'direction':direction, 'upspeed':upspeed, csrfmiddlewaretoken: '{{ csrf_token }}',},
+        }).done(function(data){
+            if(data.killed==true){
+                window.location.href = '/users/personal'
+                alert('您已坠毁!')
+            }
+            $('.hero').css({
+                'left':(data.my_arrow.left-7)+'px',
+                'top':(data.my_arrow.top-7)+'px',
+                'transform':'rotate('+data.my_arrow.angle+'deg)',
+                'transform-origin':'50% 50%',
+            })
+            $('.map').css({
+                'left': (-500+visoin_x/2-(data.my_arrow.left-500))+'px',
+                'top': (-500+visoin_y/2-(data.my_arrow.top-500))+'px',
+            })
+            $('.bullet').remove()
+            $('.other_arrows').remove()
+            if(data.other_arrows!=''){
+                for(i in data.other_arrows){
+                    create_arrows(i, data.other_arrows[i].left, data.other_arrows[i].top, data.other_arrows[i].angle)
+                }  
+            }
+
+            if(data.bullets!=''){
+                for(i in data.bullets){
+                    create_bullets(i, data.bullets[i].left, data.bullets[i].top, data.bullets[i].angle)
+                }  
+            }
         })
-    </script>
-</body>
-</html>
+    }
+    setInterval(move_ajax,60)
+
+
+
+{% endblock script%}

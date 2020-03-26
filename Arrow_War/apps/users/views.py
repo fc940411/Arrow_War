@@ -84,6 +84,9 @@ class Personal(LoginRequiredMixin, View):
     def get(self, request):
         '''显示个人首页'''
         user = request.user
+        arrow=Arrows.objects.get(parent=user)
+        arrow.life = False
+        arrow.save()
         score=Score.objects.get(parent=user)
         return render(request, 'users/personal.html', {'nickname':user.nickname, 
                                                        'score':score.scores, 

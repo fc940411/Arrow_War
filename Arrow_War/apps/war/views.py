@@ -13,6 +13,8 @@ import time
 import threading
 import random
 import re
+import gevent
+from gevent import monkey
 
 class PVE(LoginRequiredMixin, View):
     '''单机页面'''
@@ -59,6 +61,8 @@ class PVP(LoginRequiredMixin, View):
     def post(self, request):
         '''返回箭头、子弹位置及存活状态'''
         # 获取箭头信息并控制
+
+        
         user = request.user
         arrow = Arrows.objects.get(parent=user)
         
@@ -116,14 +120,53 @@ class PVP(LoginRequiredMixin, View):
                                       'top':i.top, 
                                       'angle':i.angle}
                 all_bullets.append(bullet_information)
-        
+
         return JsonResponse({'my_arrow':my_arrow,
                              'other_arrows':other_arrows,
                              'bullets':all_bullets,
                              'killed':killed})
 
+
 class PVP_Calc(LoginRequiredMixin, View):
     '''箭头位置计算'''
+    def arrow_calc(self, i, arrows, bullets):
+      # 箭头移动计算
+      x = i.left - 500
+      y = i.top - 500
+      if x**2 + y**2 >= 497**2 or i.left < 0 or i.top < 0:
+        # 1.判断是否出界
+        i.life = False
+        i.save()
+      else:
+        # 2.判断是否相撞
+        for n in arrows:
+          if n.parent.id > i.parent.id:
+            if (n.left-i.left)**2 + (n.top-i.top)**2 <= 7**2:
+              i.life = False
+              i.save()
+              n.life = False
+              n.save()
+
+        for b in bullets:
+          if b.parent != i.parent:
+            if (b.left-i.left)**2 + (b.top-i.top)**2 <= 5**2:
+              i.life = False
+              i.save()
+          
+        # 3.计算移动位置
+        i.left = i.left + math.sin(math.pi*(i.angle)/180)*i.speed
+        i.top = i.top - math.cos(math.pi*(i.angle)/180)*i.speed
+        i.save()
+
+    def bullet_calc(self, b):
+      b.left = b.left + math.sin(math.pi*(b.angle)/180)*b.speed
+      b.top = b.top - math.cos(math.pi*(b.angle)/180)*b.speed
+      b.save()
+      if (b.left-500)**2 + (b.top-500)**2 >= 550**2 or b.left < 0 or b.top < 0:
+        # 1.判断是否出界
+        b.delete()
+
+
     def post(self, request):
       state_position_calc = request.POST.get('state_position_calc')
       if state_position_calc == '0':
@@ -144,69 +187,20 @@ class PVP_Calc(LoginRequiredMixin, View):
 
 
           try:
-              arrows = Arrows.objects.filter(life=True)
-              bullets = Bullets.objects.filter(life=True)
-          except:
-            pass
-          else:
-            for i in arrows:
-              # 箭头移动计算
-              x = i.left - 500
-              y = i.top - 500
-              if x**2 + y**2 >= 497**2 or i.left < 0 or i.top < 0:
-                # 1.判断是否出界
-                i.life = False
-                i.left = 500
-                i.top = 500
-                i.speed = 8
-                i.angle = 0
-                i.save()
-              else:
-                # 2.判断是否相撞
-                for n in arrows:
-                  if n.parent.id > i.parent.id:
-                    if (n.left-i.left)**2 + (n.top-i.top)**2 <= 7**2:
-                      i.life = False
-                      i.left = 500
-                      i.top = 500
-                      i.speed = 8
-                      i.angle = 0
-                      i.save()
-                      n.life = False
-                      n.left = 500
-                      n.top = 500
-                      n.speed = 8
-                      n.angle = 0
-                      n.save()
-
-                for b in bullets:
-                  if b.parent != i.parent:
-                    if (b.left-i.left)**2 + (b.top-i.top)**2 <= 5**2:
-                      i.life = False
-                      i.left = 500
-                      i.top = 500
-                      i.speed = 8
-                      i.angle = 0
-                      i.save()
-                  
-                # 3.计算移动位置
-                i.left = i.left + math.sin(math.pi*(i.angle)/180)*i.speed
-                i.top = i.top - math.cos(math.pi*(i.angle)/180)*i.speed
-                i.save()
-          # 判断子弹是否出界
-          try:
+            arrows = Arrows.objects.filter(life=True)
             bullets = Bullets.objects.filter(life=True)
           except:
             pass
           else:
+            for i in arrows:
+              gevent.joinall([
+                gevent.spawn(self.arrow_calc, i, arrows, bullets)
+              ])
             for b in bullets:
-              b.left = b.left + math.sin(math.pi*(b.angle)/180)*b.speed
-              b.top = b.top - math.cos(math.pi*(b.angle)/180)*b.speed
-              b.save()
-              if (b.left-500)**2 + (b.top-500)**2 >= 550**2 or b.left < 0 or b.top < 0:
-                # 1.判断是否出界
-                b.delete()
-              
+              gevent.joinall([
+                gevent.spawn(self.bullet_calc, b)
+              ])
+        
       return JsonResponse({'res':0})
 
 class PVP_Createbullets(LoginRequiredMixin, View):

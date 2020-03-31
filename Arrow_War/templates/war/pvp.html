@@ -127,15 +127,26 @@
             'z-index':500+num,
         }) 
     }
-
+    // for(var i = 0; i < 20; i++){
+    //     $('.map').append("<div class = 'glyphicon glyphicon-chevron-up other_arrows' id=arrow"+i+"></div>")
+    //     $('#arrow'+i).css({
+    //         'z-index':100+parseInt(i),
+    //     })
+    // }
+    // for(var i = 0; i < 200; i++){
+    //     $('.map').append("<div class = 'bullet' id=bullet"+i+"></div>")
+    //     $('#bullet'+i).css({
+    //         'z-index':500+parseInt(i),
+    //     })
+    // }
     function move_ajax(){
-        
         $.ajax({
             'url':'/war/pvp',
             'type':'post',
             'datatype':'json',
             'data':{'direction':direction, 'upspeed':upspeed, csrfmiddlewaretoken: '{{ csrf_token }}',},
         }).done(function(data){
+            console.log(data.my_arrow.left)
             if(data.killed==true){
                 window.location.href = '/users/personal'
                 alert('您已坠毁!')

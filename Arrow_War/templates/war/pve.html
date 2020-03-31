@@ -60,7 +60,6 @@
     var turnleft = false
     var turnright = false
     $(window).keydown(function (event) {
-        console.log(String.fromCharCode(event.which))
         if(String.fromCharCode(event.which)=='A'){
             turnleft = true
         }
@@ -148,7 +147,6 @@
                 angle = angle - 360
             }
         }
-        console.log(angle)
     }
     setInterval(arrow_turn,60)
 

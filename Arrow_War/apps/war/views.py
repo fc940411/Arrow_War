@@ -14,6 +14,7 @@ import threading
 import random
 import re
 import gevent
+import pymysql.cursors
 from gevent import monkey
 
 class PVE(LoginRequiredMixin, View):
@@ -61,110 +62,153 @@ class PVP(LoginRequiredMixin, View):
     def post(self, request):
         '''返回箭头、子弹位置及存活状态'''
         # 获取箭头信息并控制
-
-        
         user = request.user
-        arrow = Arrows.objects.get(parent=user)
-        
         direction = request.POST.get('direction')
         upspeed = request.POST.get('upspeed')
-
-        if direction == 'left':
-          arrow.angle = arrow.angle - 6
-        elif direction == 'right':
-          arrow.angle = arrow.angle + 6
-
-        if upspeed == 'up':
-          arrow.speed = 16
-        else:
-          arrow.speed = 8
-        arrow.save()
-        if arrow.life == False:
-          killed = True
-        else:
-          killed = False
-        my_arrow = {'arrow_style':arrow.arrow_style, 
-                    'weapon_style':arrow.weapon_style, 
-                    'left':arrow.left, 
-                    'top':arrow.top, 
-                    'angle':arrow.angle,
-                    'life':arrow.life,}
-        
-        # 获取其他箭头信息
+        #--------连接数据库----------
+        connection = pymysql.connect(host='localhost',
+                         user='root',
+                         password='mysql',
+                         db='arrow_war',
+                         charset='utf8',
+                         cursorclass=pymysql.cursors.DictCursor)
+        #--------控制自身箭头----------
         try:
-            arrows = Arrows.objects.filter(Q(life=True)&~Q(parent=user))
+          with connection.cursor() as cursor:
+            # 获取箭头信息
+            sql = "SELECT `left`,top,angle,life FROM war_arrows WHERE parent_id = %s" % user.id
+            cursor.execute(sql)
+            arrow = cursor.fetchone()
+            if direction == 'left':
+              angle = int(arrow['angle']) - 6
+              sql = "UPDATE war_arrows SET angle = %s WHERE parent_id = %s" % (str(angle), user.id)
+              cursor.execute(sql)
+              connection.commit()
+            elif direction == 'right':
+              angle = int(arrow['angle']) + 6
+              sql = "UPDATE war_arrows SET angle = %s WHERE parent_id = %s" % (str(angle), user.id)
+              cursor.execute(sql)
+              connection.commit()
+            else:
+              angle = arrow['angle']
+
+
+
+            if upspeed == 'up':
+              speed = 16
+              sql = "UPDATE war_arrows SET speed = %s WHERE parent_id = %s" % (str(speed), user.id)
+              cursor.execute(sql)
+              connection.commit()
+            else:
+              speed = 8
+              sql = "UPDATE war_arrows SET speed = %s WHERE parent_id = %s" % (str(speed), user.id)
+              cursor.execute(sql)
+              connection.commit()
+            if arrow['life'] == False:
+              killed = True
+            else:
+              killed = False
         except:
+          pass
+  
+        my_arrow = {'left':arrow['left'], 
+                    'top':arrow['top'], 
+                    'angle':angle,
+                    'life':arrow['life'],}
+        #--------获取其余箭头和子弹信息----------
+        try:
+          with connection.cursor() as cursor:
+            # 获取其他箭头信息
+            sql1 = "SELECT `left`,top,angle FROM war_arrows WHERE life = True AND parent_id <> %s" % user.id
+            cursor.execute(sql1)
+            arrows = cursor.fetchall()
+            # 获取子弹信息
+            sql2 = "SELECT `left`,top,angle FROM war_bullets WHERE life = True"
+            cursor.execute(sql2)
+            bullets = cursor.fetchall()
+        except:
+          other_arrows = ''
+          all_bullets = ''
+        else:
+          other_arrows = []
+          for i in arrows:
+            arrow_information = {'left':i['left'], 
+                                 'top':i['top'], 
+                                 'angle':i['angle']}
+            other_arrows.append(arrow_information)
+          if len(other_arrows) == 0:
             other_arrows = ''
-        else:
-            other_arrows = []
-            for i in arrows:
-                arrow_information = {'nickname':i.parent.nickname, 
-                                     'arrow_style':i.arrow_style, 
-                                     'weapon_style':i.weapon_style, 
-                                     'left':i.left, 
-                                     'top':i.top, 
-                                     'angle':i.angle}
-                other_arrows.append(arrow_information)
-            if len(other_arrows) == 0:
-              other_arrows = ''
 
-        # 获取子弹信息
-        try:
-            bullets = Bullets.objects.filter(life=True)
-        except:
+          all_bullets = []
+          for i in bullets:
+            bullet_information = {'left':i['left'], 
+                                 'top':i['top'], 
+                                 'angle':i['angle']}
+            all_bullets.append(bullet_information)
+          if len(all_bullets) == 0:
             all_bullets = ''
-        else:
-            all_bullets = []
-            for i in bullets:
-                bullet_information = {'left':i.left, 
-                                      'top':i.top, 
-                                      'angle':i.angle}
-                all_bullets.append(bullet_information)
+        finally:
+          connection.close()
+
 
         return JsonResponse({'my_arrow':my_arrow,
                              'other_arrows':other_arrows,
                              'bullets':all_bullets,
                              'killed':killed})
 
-
 class PVP_Calc(LoginRequiredMixin, View):
     '''箭头位置计算'''
-    def arrow_calc(self, i, arrows, bullets):
+    def arrow_calc(self, i, arrows, bullets, cursor, connection):
       # 箭头移动计算
-      x = i.left - 500
-      y = i.top - 500
-      if x**2 + y**2 >= 497**2 or i.left < 0 or i.top < 0:
+      x = i['left'] - 500
+      y = i['top'] - 500
+      if x**2 + y**2 >= 497**2 or i['left'] < 0 or i['top'] < 0:
         # 1.判断是否出界
-        i.life = False
-        i.save()
+        sql1 = "UPDATE war_arrows SET life = False WHERE parent_id = %s" % i['parent_id']
+        cursor.execute(sql1)
+        connection.commit()
       else:
         # 2.判断是否相撞
         for n in arrows:
-          if n.parent.id > i.parent.id:
-            if (n.left-i.left)**2 + (n.top-i.top)**2 <= 7**2:
-              i.life = False
-              i.save()
-              n.life = False
-              n.save()
+          if n['parent_id'] > i['parent_id']:
+            if (n['left']-i['left'])**2 + (n['top']-i['top'])**2 <= 7**2:
+              sql1 = "UPDATE war_arrows SET life = False WHERE parent_id = %s" % i['parent_id'] 
+              cursor.execute(sql1)
+              connection.commit()
+              sql2 = "UPDATE war_arrows SET life = False WHERE parent_id = %s" % n['parent_id']
+              cursor.execute(sql2)
+              connection.commit()
 
         for b in bullets:
-          if b.parent != i.parent:
-            if (b.left-i.left)**2 + (b.top-i.top)**2 <= 5**2:
-              i.life = False
-              i.save()
+          if b['parent_id'] != i['parent_id']:
+            if (b['left']-i['left'])**2 + (b['top']-i['top'])**2 <= 5**2:
+              sql1 = "UPDATE war_arrows SET life = False WHERE parent_id = %s" % i['parent_id']
+              cursor.execute(sql1)
+              connection.commit()
+              
           
         # 3.计算移动位置
-        i.left = i.left + math.sin(math.pi*(i.angle)/180)*i.speed
-        i.top = i.top - math.cos(math.pi*(i.angle)/180)*i.speed
-        i.save()
+        x = i['left'] + math.sin(math.pi*(i['angle'])/180)*i['speed']
+        y = i['top'] - math.cos(math.pi*(i['angle'])/180)*i['speed']
+        sql3 = "UPDATE war_arrows SET `left` = %s WHERE parent_id = %s" % (str(x), i['parent_id'])
+        cursor.execute(sql3)
+        sql4 = "UPDATE war_arrows SET top = %s WHERE parent_id = %s" % (str(y), i['parent_id'])
+        cursor.execute(sql4)
+        connection.commit()
 
-    def bullet_calc(self, b):
-      b.left = b.left + math.sin(math.pi*(b.angle)/180)*b.speed
-      b.top = b.top - math.cos(math.pi*(b.angle)/180)*b.speed
-      b.save()
-      if (b.left-500)**2 + (b.top-500)**2 >= 550**2 or b.left < 0 or b.top < 0:
+    def bullet_calc(self, b, cursor, connection):
+      x = b['left'] + math.sin(math.pi*(b['angle'])/180)*b['speed']
+      y = b['top'] - math.cos(math.pi*(b['angle'])/180)*b['speed']
+      sql1 = "UPDATE war_bullets SET `left` = %s WHERE id = %s" % (str(x), b['id'])
+      cursor.execute(sql1)
+      sql2 = "UPDATE war_bullets SET top = %s WHERE id = %s" % (str(y), b['id'])
+      cursor.execute(sql2)
+      connection.commit()
+      if (b['left']-500)**2 + (b['top']-500)**2 >= 550**2 or b['left'] < 0 or b['top'] < 0:
         # 1.判断是否出界
-        b.delete()
+        sql3 = "DELETE FROM war_bullets WHERE id = %s" % b['id']
+        cursor.execute(sql3)
+        connection.commit()
 
 
     def post(self, request):
@@ -180,27 +224,45 @@ class PVP_Calc(LoginRequiredMixin, View):
 
       if state.position_calc == True:
         while True:
-          time.sleep(0.06)
+          start_time = time.time()
+          
+          
           state = GameControl.objects.get(id=1)
           if state.position_calc == False:
             break
 
-
+          # 用pymysql连接数据库提高数据读取效率
+          connection = pymysql.connect(host='localhost',
+                           user='root',
+                           password='mysql',
+                           db='arrow_war',
+                           charset='utf8',
+                           cursorclass=pymysql.cursors.DictCursor)
           try:
-            arrows = Arrows.objects.filter(life=True)
-            bullets = Bullets.objects.filter(life=True)
-          except:
-            pass
-          else:
-            for i in arrows:
-              gevent.joinall([
-                gevent.spawn(self.arrow_calc, i, arrows, bullets)
-              ])
-            for b in bullets:
-              gevent.joinall([
-                gevent.spawn(self.bullet_calc, b)
-              ])
-        
+            with connection.cursor() as cursor:
+              # 读取单条记录
+              sql = "SELECT parent_id,`left`,top,angle,speed,id FROM war_bullets"
+              cursor.execute(sql)
+              bullets = cursor.fetchall()
+              for b in bullets:
+                gevent.joinall([
+                  gevent.spawn(self.bullet_calc, b, cursor, connection)
+                ])
+            with connection.cursor() as cursor:
+              # 读取单条记录
+              sql = "SELECT parent_id,`left`,top,angle,speed FROM war_arrows WHERE life = True"
+              cursor.execute(sql)
+              arrows = cursor.fetchall()
+              for i in arrows:
+                gevent.joinall([
+                  gevent.spawn(self.arrow_calc, i, arrows, bullets, cursor, connection)
+                ])
+          finally:
+            connection.close()
+          end_time = time.time()
+          t = round(end_time-start_time, 3)
+          if t < 0.06:
+            time.sleep(0.06 - t)
       return JsonResponse({'res':0})
 
 class PVP_Createbullets(LoginRequiredMixin, View):

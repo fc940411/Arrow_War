@@ -24,6 +24,10 @@
             <div class='map'>
                 {% block map %}{% endblock map%}
             </div>
+            <div class='war_btn' id="leftbtn">向左</div>
+            <div class='war_btn' id="shootbtn">射击</div>
+            <div class='war_btn' id="speedbtn">加速</div>
+            <div class='war_btn' id="rightbtn">向右</div>
         </div>   
     </div>
 
@@ -35,11 +39,37 @@
                     'height':window_height-60,
                 })
             }
-
-            {% block script %}{% endblock script%}
             $('#logout').click(function(){
                 window.location.href = '/users/personal'
             })
+            $('.war_btn').css({
+                'top':$('.vision').height()-60,
+            })
+            console.log($('.vision').height()-20)
+            $('#leftbtn').css({
+                'left':'0px',
+                'z-index':'996',
+            })
+            $('#rightbtn').css({
+                'left':$('.vision').width()/4-27,
+                'z-index':'997',
+            })
+            $('#shootbtn').css({
+                'left':$('.vision').width()*3/4-27,
+                'z-index':'998',
+            })
+            $('#speedbtn').css({
+                'left':$('.vision').width()-54,
+                'z-index':'999',
+            })
+            
+            
+
+
+
+
+            {% block script %}{% endblock script%}
+            
         })
     
         

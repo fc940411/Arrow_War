@@ -13,7 +13,7 @@
     var living_time = 0
     var visoin_x = $('.vision').width()
     var visoin_y = $('.vision').height()
-    var speed = 8
+    var speed = 0
     var enemy_speed = 5
     var angle = 0
     var x_hero = 500
@@ -132,7 +132,27 @@
             }
         }
     })
-
+    $('#leftbtn').on('touchstart',function(){
+        turnleft = true
+    })
+    $('#leftbtn').on('touchend',function(){
+        turnleft = false
+    })
+    $('#rightbtn').on('touchstart',function(){
+        turnright = true
+    })
+    $('#rightbtn').on('touchend',function(){
+        turnright = false
+    })
+    $('#speedbtn').on('touchstart',function(){
+        speed = 16
+    })
+    $('#speedbtn').on('touchend',function(){
+        speed = 8
+    })
+    $('#shootbtn').css({
+        'display':'none',
+    })
 
 
     function arrow_turn(){

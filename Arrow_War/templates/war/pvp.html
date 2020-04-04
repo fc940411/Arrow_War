@@ -61,6 +61,35 @@
             })
         }
     })
+    $('#leftbtn').on('touchstart',function(){
+        direction = 'left'
+    })
+    $('#leftbtn').on('touchend',function(){
+        direction = ''
+    })
+    $('#rightbtn').on('touchstart',function(){
+        direction = 'right'
+    })
+    $('#rightbtn').on('touchend',function(){
+        direction = ''
+    })
+    $('#speedbtn').on('touchstart',function(){
+        upspeed = 'up'
+    })
+    $('#speedbtn').on('touchend',function(){
+        upspeed = ''
+    })
+    $('#shootbtn').on('touchstart',function(){
+        $.ajax({
+            'url':'/war/pvp_createbullets',
+            'type':'post',
+            'datatype':'json',
+            'data':{csrfmiddlewaretoken: '{{ csrf_token }}',},
+        })
+    })
+
+
+
     $(window).keyup(function (event) {
         var key_down = String.fromCharCode(event.which)
         if(key_down == 'A' | key_down == '%'){

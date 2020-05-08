@@ -134,16 +134,6 @@ STATIC_ROOT = '/home/fc/Desktop/git_war/github/static'
 # 让Users使用Django的内置认证系统
 AUTH_USER_MODEL='users.Users'
 
-# 设置邮箱
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.163.com'
-EMAIL_PORT = 25
-#发送邮件的邮箱
-EMAIL_HOST_USER = 'fclianxiwangzhan@163.com'
-#在邮箱中设置的客户端授权密码
-EMAIL_HOST_PASSWORD = 'UJGPTASBHBBZBXXV'
-#收件人看到的发件人
-EMAIL_FROM = 'Arrow_War<fclianxiwangzhan@163.com>'
 
 # 设置缓存
 CACHES = {
